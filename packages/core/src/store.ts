@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * LanceDB Storage Layer with Multi-Scope Support
  */
@@ -15,7 +16,20 @@ import {
 import { dirname } from "node:path";
 import { buildSmartMetadata, parseSmartMetadata, stringifySmartMetadata } from "./smart-metadata.js";
 import type { SemanticGate } from "./semantic-gate.js";
-import { walAppend, walMarkCommitted, walMarkFailed } from "./wal-recovery.js";
+import { requirePro } from "./license.js";
+
+// Pro: WAL (Write-Ahead Log) — graceful degradation without license
+let walAppend: ((...args: any[]) => Promise<void>) | null = null;
+let walMarkCommitted: ((...args: any[]) => Promise<void>) | null = null;
+let walMarkFailed: ((...args: any[]) => Promise<void>) | null = null;
+
+if (requirePro("wal")) {
+  import("./wal-recovery.js").then((mod) => {
+    walAppend = mod.walAppend;
+    walMarkCommitted = mod.walMarkCommitted;
+    walMarkFailed = mod.walMarkFailed;
+  }).catch(() => {});
+}
 
 // ============================================================================
 // Types
@@ -484,19 +498,21 @@ export class MemoryStore {
       const groupId = scope.startsWith("agent:") ? scope.split(":")[1] || "default" : "default";
       const walTs = new Date(fullEntry.timestamp).toISOString();
 
-      // Write WAL pending entry before Graphiti call
-      walAppend({
-        ts: walTs,
-        action: "write",
-        text: fullEntry.text,
-        scope,
-        category: fullEntry.category || "fact",
-        groupId,
-        importance,
-        status: "pending",
-      }).catch(() => {});
+      // Write WAL pending entry before Graphiti call (Pro feature)
+      if (walAppend) {
+        walAppend({
+          ts: walTs,
+          action: "write",
+          text: fullEntry.text,
+          scope,
+          category: fullEntry.category || "fact",
+          groupId,
+          importance,
+          status: "pending",
+        }).catch(() => {});
+      }
 
-      // Async Graphiti write with WAL status tracking
+      // Async Graphiti write (WAL tracking is Pro, Graphiti write is Core)
       fetch(`${graphitiBase}/episodes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -510,10 +526,10 @@ export class MemoryStore {
         signal: AbortSignal.timeout(15000),
       })
         .then(() => {
-          walMarkCommitted(walTs).catch(() => {});
+          walMarkCommitted?.(walTs).catch(() => {});
         })
         .catch((err) => {
-          walMarkFailed(walTs, String(err)).catch(() => {});
+          walMarkFailed?.(walTs, String(err)).catch(() => {});
         });
     }
 

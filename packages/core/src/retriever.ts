@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Hybrid Retrieval System
  * Combines vector search + BM25 full-text search with RRF fusion
@@ -6,16 +7,43 @@
 import type { MemoryEntry, MemoryStore, MemorySearchResult } from "./store.js";
 import type { Embedder } from "./embedder.js";
 import {
-  AccessTracker,
-  computeEffectiveHalfLife,
-  parseAccessMetadata,
-} from "./access-tracker.js";
 import { filterNoise } from "./noise-filter.js";
 import type { DecayEngine, DecayableMemory } from "./decay-engine.js";
 import type { TierManager } from "./tier-manager.js";
 import { toLifecycleMemory, getDecayableFromEntry } from "./smart-metadata.js";
 import { getAdaptiveThreshold, recordResonanceScore } from "./resonance-state.js";
-import { recordQuery } from "./query-tracker.js";
+import { requirePro } from "./license.js";
+
+// Pro: Access tracking & query tracking — graceful degradation without license
+type AccessTracker = { bumpAccess: (id: string) => Promise<void> };
+let _parseAccessMetadata: ((m: any) => { accessCount: number; lastAccessedAt: number }) | null = null;
+let _computeEffectiveHalfLife: ((hl: number, ac: number, la: number, rf?: number, mx?: number) => number) | null = null;
+let _recordQuery: ((...args: any[]) => void) | null = null;
+
+if (requirePro("access-tracking")) {
+  import("./access-tracker.js").then((mod) => {
+    _parseAccessMetadata = mod.parseAccessMetadata;
+    _computeEffectiveHalfLife = mod.computeEffectiveHalfLife;
+  }).catch(() => {});
+}
+if (requirePro("query-tracking")) {
+  import("./query-tracker.js").then((mod) => {
+    _recordQuery = mod.recordQuery;
+  }).catch(() => {});
+}
+
+// Fallbacks for Core mode (no access reinforcement)
+function parseAccessMetadata(m: any): { accessCount: number; lastAccessedAt: number } {
+  if (_parseAccessMetadata) return _parseAccessMetadata(m);
+  return { accessCount: 0, lastAccessedAt: 0 };
+}
+function computeEffectiveHalfLife(hl: number, _ac: number, _la: number, _rf?: number, _mx?: number): number {
+  if (_computeEffectiveHalfLife) return _computeEffectiveHalfLife(hl, _ac, _la, _rf, _mx);
+  return hl; // Core: use fixed half-life without reinforcement
+}
+function recordQuery(data: any): void {
+  _recordQuery?.(data);
+}
 import { appendFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";

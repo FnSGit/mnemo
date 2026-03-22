@@ -2,11 +2,37 @@ Mnemo Pro — Commercial License
 
 Copyright (c) 2026 Mnemo Contributors. All rights reserved.
 
-The code in this directory (packages/pro/) and its subdirectories,
-as well as packages/hooks/ and packages/tools/, is proprietary software.
+This project uses a dual-license model:
 
-You may NOT use, copy, modify, or distribute this code without a valid
-Mnemo Pro license. For licensing inquiries, contact: rex@mnemo.ai
+  - Files marked with `SPDX-License-Identifier: MIT` are free and open source
+    under the MIT License (see /LICENSE).
 
-This restriction does NOT apply to packages/core/, which is licensed
-under the MIT License.
+  - Files marked with `SPDX-License-Identifier: LicenseRef-Mnemo-Pro` are
+    proprietary software. You may NOT use, copy, modify, or distribute these
+    files without a valid Mnemo Pro license.
+
+Protected files (LicenseRef-Mnemo-Pro):
+
+  packages/core/src/wal-recovery.ts
+  packages/core/src/tools.ts
+  packages/core/src/mcp-server.ts
+  packages/core/src/reflection-event-store.ts
+  packages/core/src/reflection-item-store.ts
+  packages/core/src/reflection-mapped-metadata.ts
+  packages/core/src/reflection-metadata.ts
+  packages/core/src/reflection-ranking.ts
+  packages/core/src/reflection-retry.ts
+  packages/core/src/reflection-slices.ts
+  packages/core/src/reflection-store.ts
+  packages/core/src/session-recovery.ts
+  packages/core/src/memory-upgrader.ts
+  packages/core/src/observability.ts
+  packages/core/src/query-tracker.ts
+  packages/core/src/access-tracker.ts
+  packages/core/src/self-improvement-files.ts
+  packages/hooks/*
+  packages/tools/*
+
+All other source files are MIT-licensed.
+
+For licensing inquiries, contact: hi@mnemo.dev

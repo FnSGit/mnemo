@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Noise Filter
  * Filters out low-quality memories (meta-questions, agent denials, session boilerplate)

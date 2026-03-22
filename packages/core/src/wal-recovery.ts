@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LicenseRef-Mnemo-Pro
 /**
  * Graphiti Write-Ahead Log (WAL) + Recovery
  *

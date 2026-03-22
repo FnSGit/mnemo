@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LicenseRef-Mnemo-Pro
 /**
  * MCP Server for memory-lancedb-pro
  *

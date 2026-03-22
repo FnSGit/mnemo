@@ -13,33 +13,67 @@ import { pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 import { spawn } from "node:child_process";
 
-// Import core components
+// Import core components (MIT)
 import { MemoryStore, validateStoragePath } from "./src/store.js";
 import { createEmbedder, getVectorDimensions } from "./src/embedder.js";
 import { createRetriever, DEFAULT_RETRIEVAL_CONFIG } from "./src/retriever.js";
 import { createScopeManager } from "./src/scopes.js";
 import { createMigrator } from "./src/migrate.js";
-import { registerAllMemoryTools } from "./src/tools.js";
-import { appendSelfImprovementEntry, ensureSelfImprovementLearningFiles } from "./src/self-improvement-files.js";
-import type { MdMirrorWriter } from "./src/tools.js";
 import { shouldSkipRetrieval } from "./src/adaptive-retrieval.js";
-import { runWithReflectionTransientRetryOnce } from "./src/reflection-retry.js";
-import { resolveReflectionSessionSearchDirs, stripResetSuffix } from "./src/session-recovery.js";
-import {
-  storeReflectionToLanceDB,
-  loadAgentReflectionSlicesFromEntries,
-  DEFAULT_REFLECTION_DERIVED_MAX_AGE_MS,
-} from "./src/reflection-store.js";
-import {
-  extractReflectionLearningGovernanceCandidates,
-  extractReflectionMappedMemoryItems,
-} from "./src/reflection-slices.js";
-import { createReflectionEventId } from "./src/reflection-event-store.js";
-import { buildReflectionMappedMetadata } from "./src/reflection-mapped-metadata.js";
 import { createMemoryCLI } from "./cli.js";
 import { isNoise } from "./src/noise-filter.js";
 import { SemanticGate } from "./src/semantic-gate.js";
-import { recoverPendingWrites } from "./src/wal-recovery.js";
+import { isProLicensed, requirePro } from "./src/license.js";
+
+// Pro components — dynamic import with graceful degradation
+let registerAllMemoryTools: any = () => {};
+let appendSelfImprovementEntry: any = async () => {};
+let ensureSelfImprovementLearningFiles: any = async () => {};
+let runWithReflectionTransientRetryOnce: any = null;
+let resolveReflectionSessionSearchDirs: any = () => [];
+let stripResetSuffix: any = (s: string) => s;
+let storeReflectionToLanceDB: any = async () => {};
+let loadAgentReflectionSlicesFromEntries: any = () => [];
+let DEFAULT_REFLECTION_DERIVED_MAX_AGE_MS = 86_400_000;
+let extractReflectionLearningGovernanceCandidates: any = () => [];
+let extractReflectionMappedMemoryItems: any = () => [];
+let createReflectionEventId: any = () => "";
+let buildReflectionMappedMetadata: any = () => ({});
+let recoverPendingWrites: any = async () => {};
+let createMemoryUpgrader: any = () => null;
+type MdMirrorWriter = any;
+
+if (isProLicensed()) {
+  // Load all Pro modules — these are available but license-gated
+  Promise.all([
+    import("./src/tools.js"),
+    import("./src/self-improvement-files.js"),
+    import("./src/reflection-retry.js"),
+    import("./src/session-recovery.js"),
+    import("./src/reflection-store.js"),
+    import("./src/reflection-slices.js"),
+    import("./src/reflection-event-store.js"),
+    import("./src/reflection-mapped-metadata.js"),
+    import("./src/wal-recovery.js"),
+    import("./src/memory-upgrader.js"),
+  ]).then(([tools, selfImprove, reflRetry, sessRecov, reflStore, reflSlices, reflEvent, reflMapped, wal, upgrader]) => {
+    registerAllMemoryTools = tools.registerAllMemoryTools;
+    appendSelfImprovementEntry = selfImprove.appendSelfImprovementEntry;
+    ensureSelfImprovementLearningFiles = selfImprove.ensureSelfImprovementLearningFiles;
+    runWithReflectionTransientRetryOnce = reflRetry.runWithReflectionTransientRetryOnce;
+    resolveReflectionSessionSearchDirs = sessRecov.resolveReflectionSessionSearchDirs;
+    stripResetSuffix = sessRecov.stripResetSuffix;
+    storeReflectionToLanceDB = reflStore.storeReflectionToLanceDB;
+    loadAgentReflectionSlicesFromEntries = reflStore.loadAgentReflectionSlicesFromEntries;
+    DEFAULT_REFLECTION_DERIVED_MAX_AGE_MS = reflStore.DEFAULT_REFLECTION_DERIVED_MAX_AGE_MS;
+    extractReflectionLearningGovernanceCandidates = reflSlices.extractReflectionLearningGovernanceCandidates;
+    extractReflectionMappedMemoryItems = reflSlices.extractReflectionMappedMemoryItems;
+    createReflectionEventId = reflEvent.createReflectionEventId;
+    buildReflectionMappedMetadata = reflMapped.buildReflectionMappedMetadata;
+    recoverPendingWrites = wal.recoverPendingWrites;
+    createMemoryUpgrader = upgrader.createMemoryUpgrader;
+  }).catch(() => {});
+}
 
 // Import smart extraction & lifecycle components
 import { SmartExtractor } from "./src/smart-extractor.js";
@@ -47,7 +81,7 @@ import { NoisePrototypeBank } from "./src/noise-prototypes.js";
 import { createLlmClient } from "./src/llm-client.js";
 import { createDecayEngine, DEFAULT_DECAY_CONFIG } from "./src/decay-engine.js";
 import { createTierManager, DEFAULT_TIER_CONFIG } from "./src/tier-manager.js";
-import { createMemoryUpgrader } from "./src/memory-upgrader.js";
+// createMemoryUpgrader — loaded dynamically above (Pro)
 import {
   buildSmartMetadata,
   parseSmartMetadata,

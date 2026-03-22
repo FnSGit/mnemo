@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Prompt templates for intelligent memory extraction.
  * Three mandatory prompts:

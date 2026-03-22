@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Smart Memory Extractor — LLM-powered extraction pipeline
  * Replaces regex-triggered capture with intelligent 6-category extraction.

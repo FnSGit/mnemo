@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * LLM Client for memory extraction and dedup decisions.
  * Uses OpenAI-compatible API (reuses the embedding provider config).

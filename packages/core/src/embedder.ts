@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Embedding Abstraction Layer
  * OpenAI-compatible API for various embedding providers.
@@ -509,7 +510,7 @@ export class Embedder {
         try {
           console.log(`Document exceeded context limit (${errorMsg}), attempting chunking...`);
           const chunkResult = smartChunk(text, this._model);
-          
+
           if (chunkResult.chunks.length === 0) {
             throw new Error(`Failed to chunk document: ${errorMsg}`);
           }
@@ -540,11 +541,11 @@ export class Embedder {
           );
 
           const finalEmbedding = avgEmbedding.map(v => v / chunkEmbeddings.length);
-          
+
           // Cache the result for the original text (using its hash)
           this._cache.set(text, task, finalEmbedding);
           console.log(`Successfully embedded long document as ${chunkEmbeddings.length} averaged chunks`);
-          
+
           return finalEmbedding;
         } catch (chunkError) {
           // If chunking fails, throw the original error
@@ -620,7 +621,7 @@ export class Embedder {
       if (isContextError && this._autoChunk) {
         try {
           console.log(`Batch embedding failed with context error, attempting chunking...`);
-          
+
           const chunkResults = await Promise.all(
             validTexts.map(async (text, idx) => {
               const chunkResult = smartChunk(text, this._model);

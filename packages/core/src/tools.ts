@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LicenseRef-Mnemo-Pro
 /**
  * Agent Tool Definitions
  * Memory management tools for AI agents
