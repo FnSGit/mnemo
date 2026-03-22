@@ -73,6 +73,10 @@ export interface StoreConfig {
   deduplication?: boolean;
   /** Enable semantic noise gate to filter fragments (default: true) */
   semanticGate?: boolean;
+  /** Storage backend: "lancedb" (default), "qdrant", "chroma", "pgvector" */
+  storageBackend?: string;
+  /** Backend-specific config (url, connectionString, etc.) */
+  storageConfig?: Record<string, unknown>;
 }
 
 const DEDUP_SIMILARITY_THRESHOLD = 0.92;
@@ -83,7 +87,26 @@ export interface MetadataPatch {
 }
 
 // ============================================================================
-// LanceDB Dynamic Import
+// Storage Adapter Support (multi-backend)
+// ============================================================================
+
+import type { StorageAdapter } from "./storage-adapter.js";
+import { createAdapter, listAdapters } from "./storage-adapter.js";
+
+// Auto-register adapters on first import
+let _adaptersLoaded = false;
+async function ensureAdaptersLoaded(): Promise<void> {
+  if (_adaptersLoaded) return;
+  _adaptersLoaded = true;
+  // Dynamic imports — only loads the adapter that's actually needed
+  try { await import("./adapters/lancedb.js"); } catch {}
+  try { await import("./adapters/qdrant.js"); } catch {}
+  try { await import("./adapters/chroma.js"); } catch {}
+  try { await import("./adapters/pgvector.js"); } catch {}
+}
+
+// ============================================================================
+// LanceDB Dynamic Import (legacy path — used when storageBackend is unset or "lancedb")
 // ============================================================================
 
 let lancedbImportPromise: Promise<typeof import("@lancedb/lancedb")> | null =
@@ -114,8 +137,15 @@ function clampInt(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, Math.floor(value)));
 }
 
+/**
+ * Sanitize a string for use in SQL WHERE clauses.
+ * Strips everything except alphanumeric, dash, underscore, dot, colon, and space.
+ * This is stricter than SQL escaping — it prevents injection by allowlist.
+ */
 function escapeSqlLiteral(value: string): string {
-  return value.replace(/'/g, "''");
+  if (typeof value !== "string") return "";
+  // Allowlist: only safe chars for IDs, scopes, categories
+  return value.replace(/[^a-zA-Z0-9\-_.:@ \u4e00-\u9fff\u3400-\u4dbf]/g, "");
 }
 
 function normalizeSearchText(value: string): string {
@@ -221,6 +251,12 @@ export class MemoryStore {
   private updateQueue: Promise<void> = Promise.resolve();
   private semanticGateInstance: SemanticGate | null = null;
 
+  /** When using a non-LanceDB adapter, this holds the active adapter instance */
+  private _adapter: StorageAdapter | null = null;
+
+  /** True when using the adapter path (non-LanceDB backends) */
+  get usingAdapter(): boolean { return this._adapter !== null; }
+
   constructor(private readonly config: StoreConfig) { }
 
   /** Inject a SemanticGate instance (created externally with an Embedder). */
@@ -232,8 +268,19 @@ export class MemoryStore {
     return this.config.dbPath;
   }
 
+  /** Get the active adapter (null if using legacy LanceDB path) */
+  get adapter(): StorageAdapter | null {
+    return this._adapter;
+  }
+
+  /** Whether BM25 full-text search is available */
+  get hasFtsSupport(): boolean {
+    if (this._adapter) return this._adapter.hasFullTextSearch();
+    return this.ftsIndexCreated;
+  }
+
   private async ensureInitialized(): Promise<void> {
-    if (this.table) {
+    if (this.table || this._adapter) {
       return;
     }
     if (this.initPromise) {
@@ -248,6 +295,25 @@ export class MemoryStore {
   }
 
   private async doInitialize(): Promise<void> {
+    // ── Adapter path: non-LanceDB backends (qdrant, chroma, pgvector) ──
+    const backend = this.config.storageBackend;
+    if (backend && backend !== "lancedb") {
+      await ensureAdaptersLoaded();
+      const available = listAdapters();
+      if (!available.includes(backend)) {
+        throw new Error(
+          `Storage backend "${backend}" not available. Installed: ${available.join(", ")}. ` +
+          `Check that the adapter is properly imported.`
+        );
+      }
+      this._adapter = createAdapter(backend, this.config.storageConfig);
+      await this._adapter.connect(this.config.dbPath);
+      await this._adapter.ensureTable(this.config.vectorDim);
+      this.ftsIndexCreated = this._adapter.hasFullTextSearch();
+      return; // Skip LanceDB initialization
+    }
+
+    // ── Legacy LanceDB path (default) ──
     const lancedb = await loadLanceDB();
 
     let db: LanceDB.Connection;
@@ -499,7 +565,11 @@ export class MemoryStore {
     };
 
     try {
-      await this.table!.add([fullEntry]);
+      if (this._adapter) {
+        await this._adapter.add([fullEntry as any]);
+      } else {
+        await this.table!.add([fullEntry]);
+      }
     } catch (err: any) {
       const code = err.code || "";
       const message = err.message || String(err);
@@ -593,6 +663,10 @@ export class MemoryStore {
 
   async hasId(id: string): Promise<boolean> {
     await this.ensureInitialized();
+    if (this._adapter) {
+      const results = await this._adapter.query({ where: `id = '${escapeSqlLiteral(id)}'`, limit: 1 });
+      return results.length > 0;
+    }
     const safeId = escapeSqlLiteral(id);
     const res = await this.table!.query()
       .select(["id"])
@@ -604,6 +678,13 @@ export class MemoryStore {
 
   async getById(id: string, scopeFilter?: string[]): Promise<MemoryEntry | null> {
     await this.ensureInitialized();
+
+    if (this._adapter) {
+      const results = await this._adapter.query({ where: `id = '${escapeSqlLiteral(id)}'`, limit: 1 });
+      if (results.length === 0) return null;
+      const r = results[0];
+      return { id: r.id, text: r.text, vector: r.vector, category: r.category as any, scope: r.scope, importance: r.importance, timestamp: r.timestamp, metadata: r.metadata } as MemoryEntry;
+    }
 
     const safeId = escapeSqlLiteral(id);
     const rows = await this.table!
@@ -634,6 +715,15 @@ export class MemoryStore {
 
   async vectorSearch(vector: number[], limit = 5, minScore = 0.3, scopeFilter?: string[]): Promise<MemorySearchResult[]> {
     await this.ensureInitialized();
+
+    // Adapter path: delegate to backend
+    if (this._adapter) {
+      const results = await this._adapter.vectorSearch(vector, limit, minScore, scopeFilter);
+      return results.map(r => ({
+        entry: { id: r.record.id, text: r.record.text, vector: r.record.vector, category: r.record.category as any, scope: r.record.scope, importance: r.record.importance, timestamp: r.record.timestamp, metadata: r.record.metadata } as MemoryEntry,
+        score: r.score,
+      }));
+    }
 
     const safeLimit = clampInt(limit, 1, 20);
     const fetchLimit = Math.min(safeLimit * 10, 200); // Over-fetch for scope filtering
@@ -694,6 +784,15 @@ export class MemoryStore {
     scopeFilter?: string[],
   ): Promise<MemorySearchResult[]> {
     await this.ensureInitialized();
+
+    // Adapter path
+    if (this._adapter) {
+      const results = await this._adapter.fullTextSearch(query, limit, scopeFilter);
+      return results.map(r => ({
+        entry: { id: r.record.id, text: r.record.text, vector: r.record.vector, category: r.record.category as any, scope: r.record.scope, importance: r.record.importance, timestamp: r.record.timestamp, metadata: r.record.metadata } as MemoryEntry,
+        score: r.score,
+      }));
+    }
 
     const safeLimit = clampInt(limit, 1, 20);
 
@@ -872,7 +971,11 @@ export class MemoryStore {
     // Audit: record deletion with old value for version history
     _auditDelete?.([resolvedId], rowScope, "user-request");
 
-    await this.table!.delete(`id = '${resolvedId}'`);
+    if (this._adapter) {
+      await this._adapter.delete(`id = '${escapeSqlLiteral(resolvedId)}'`);
+    } else {
+      await this.table!.delete(`id = '${resolvedId}'`);
+    }
     return true;
   }
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Mnemo Core — simplified entry point
  * Usage: const mnemo = await createMnemo(config)
