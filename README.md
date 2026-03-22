@@ -175,7 +175,7 @@ The open-source foundation. Full retrieval engine, no restrictions.
 
 | Feature | Details |
 |:---|:---|
-| Storage | LanceDB hybrid (vector + BM25) |
+| Storage | Pluggable backend (LanceDB default, Qdrant/Chroma/PGVector planned) |
 | Retrieval | Triple-path (Vector + BM25 + Graphiti) with RRF fusion |
 | Rerank | Cross-encoder (Voyage rerank-2) |
 | Decay | Weibull stretched-exponential, tier-specific β |
@@ -310,5 +310,5 @@ Areas where we'd love help:
 ---
 
 <sub>
-**Trademarks:** LanceDB is a trademark of LanceDB, Inc. Neo4j is a trademark of Neo4j, Inc. Mnemo is not affiliated with, endorsed by, or sponsored by LanceDB, Inc. or Neo4j, Inc. LanceDB and Neo4j are used as default storage backends under their respective open-source licenses (Apache 2.0 and GPLv3).
+**Trademarks:** LanceDB is a trademark of LanceDB, Inc. Neo4j is a trademark of Neo4j, Inc. Qdrant is a trademark of Qdrant Solutions GmbH. Mnemo is not affiliated with, endorsed by, or sponsored by any of these organizations. Storage backends are used under their respective open-source licenses.
 </sub>
