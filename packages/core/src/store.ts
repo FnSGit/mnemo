@@ -18,6 +18,21 @@ import { buildSmartMetadata, parseSmartMetadata, stringifySmartMetadata } from "
 import type { SemanticGate } from "./semantic-gate.js";
 import { requirePro } from "./license.js";
 
+// Pro: Audit log — record all CRUD operations for GDPR/compliance
+let _auditCreate: any = null;
+let _auditUpdate: any = null;
+let _auditDelete: any = null;
+let _auditExpire: any = null;
+
+if (requirePro("audit-log")) {
+  import("./audit-log.js").then((mod) => {
+    _auditCreate = mod.auditCreate;
+    _auditUpdate = mod.auditUpdate;
+    _auditDelete = mod.auditDelete;
+    _auditExpire = mod.auditExpire;
+  }).catch(() => {});
+}
+
 // Pro: WAL (Write-Ahead Log) — graceful degradation without license
 let walAppend: ((...args: any[]) => Promise<void>) | null = null;
 let walMarkCommitted: ((...args: any[]) => Promise<void>) | null = null;
@@ -451,6 +466,10 @@ export class MemoryStore {
               (oldText.match(/\d+/) && newText.match(/\d+/) && cosineSim > 0.80);
 
             if (hasContradictionSignal) {
+              // Audit: record contradiction-based expiration (version history)
+              _auditExpire?.(match.entry.id, match.entry.scope || "global", "contradiction",
+                `old: "${match.entry.text?.slice(0, 100)}" → new: "${newText.slice(0, 100)}"`);
+
               // Demote old entry
               const existingMeta = parseSmartMetadata(match.entry.metadata, match.entry);
               const oldImportance = match.entry.importance ?? 0.7;
@@ -488,6 +507,9 @@ export class MemoryStore {
         `Failed to store memory in "${this.config.dbPath}": ${code} ${message}`,
       );
     }
+
+    // Audit: record creation
+    _auditCreate?.(fullEntry.id, fullEntry.scope, fullEntry.scope, "store", fullEntry.text?.slice(0, 200));
 
     // ── Step 3: Graphiti 时序图谱双写 with WAL ──
     const textLen = (fullEntry.text || "").length;
@@ -847,6 +869,9 @@ export class MemoryStore {
       throw new Error(`Memory ${resolvedId} is outside accessible scopes`);
     }
 
+    // Audit: record deletion with old value for version history
+    _auditDelete?.([resolvedId], rowScope, "user-request");
+
     await this.table!.delete(`id = '${resolvedId}'`);
     return true;
   }
@@ -1036,6 +1061,14 @@ export class MemoryStore {
         timestamp: original.timestamp, // preserve original
         metadata: updates.metadata ?? original.metadata,
       };
+
+      // Audit: record update with old value snapshot (version history)
+      _auditUpdate?.(original.id, rowScope, "memory-update",
+        JSON.stringify({
+          old: { text: original.text?.slice(0, 200), importance: original.importance, category: original.category },
+          new: { text: updated.text?.slice(0, 200), importance: updated.importance, category: updated.category },
+        })
+      );
 
       // LanceDB doesn't support in-place update; delete + re-add.
       // Serialize updates per store instance to avoid stale rollback races.

@@ -7,7 +7,8 @@
   "scripts": {
     "init": "node packages/tools/mnemo-init.js",
     "doctor": "node packages/tools/mnemo-doctor.js",
-    "validate": "node packages/tools/validate-config.js"
+    "validate": "node packages/tools/validate-config.js",
+    "reembed": "node packages/tools/mnemo-reembed.js"
   },
   "license": "MIT",
   "repository": {
