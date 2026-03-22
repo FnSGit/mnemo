@@ -34,7 +34,7 @@ The result: your AI agent's memory stays relevant instead of drowning in noise.
 
 ## Mnemo vs Paid Competitors
 
-| Capability | Mem0 $99 | Zep $199 | Letta $29 | Cognee $149 | **Mnemo Core** FREE | **Mnemo Pro** $69 |
+| Capability | Mem0 $249 | Zep $199 | Letta $49 | Cognee $149 | **Mnemo Core** FREE | **Mnemo Pro** $69 |
 |:---|:---:|:---:|:---:|:---:|:---:|:---:|
 | Vector search | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | BM25 keyword search | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
@@ -213,8 +213,8 @@ export MNEMO_LICENSE_TOKEN="mnemo_your_token"
 | Plan | Price | Devices | Support |
 |:---|:---|:---:|:---|
 | **Core** | Free forever | Unlimited | GitHub Issues |
-| **Indie** | $69/mo · $662/yr | 1 | Email |
-| **Team** | $149/mo · $1,430/yr | 5 | Priority + Slack |
+| **Indie** | $69/mo · $690/yr | 1 | Email |
+| **Team** | $199/mo · $1,990/yr | 5 | Priority + Slack |
 | **Enterprise** | Custom | Unlimited | Dedicated + SLA |
 
 [Get Mnemo Pro →](https://mnemo.dev/pro)
