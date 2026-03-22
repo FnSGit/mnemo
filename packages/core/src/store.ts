@@ -99,10 +99,11 @@ async function ensureAdaptersLoaded(): Promise<void> {
   if (_adaptersLoaded) return;
   _adaptersLoaded = true;
   // Dynamic imports — only loads the adapter that's actually needed
-  try { await import("./adapters/lancedb.js"); } catch {}
-  try { await import("./adapters/qdrant.js"); } catch {}
-  try { await import("./adapters/chroma.js"); } catch {}
-  try { await import("./adapters/pgvector.js"); } catch {}
+  const dbg = !!process.env.MNEMO_DEBUG;
+  try { await import("./adapters/lancedb.js"); } catch (e) { if (dbg) console.debug("[mnemo] adapter lancedb not available:", e); }
+  try { await import("./adapters/qdrant.js"); } catch (e) { if (dbg) console.debug("[mnemo] adapter qdrant not available:", e); }
+  try { await import("./adapters/chroma.js"); } catch (e) { if (dbg) console.debug("[mnemo] adapter chroma not available:", e); }
+  try { await import("./adapters/pgvector.js"); } catch (e) { if (dbg) console.debug("[mnemo] adapter pgvector not available:", e); }
 }
 
 // ============================================================================

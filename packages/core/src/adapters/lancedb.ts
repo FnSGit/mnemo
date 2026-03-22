@@ -15,6 +15,12 @@ import type {
 } from "../storage-adapter.js";
 import { registerAdapter } from "../storage-adapter.js";
 
+/** Strict allowlist sanitizer — prevents SQL injection in LanceDB filters */
+function sanitize(value: string): string {
+  if (typeof value !== "string") return "";
+  return value.replace(/[^a-zA-Z0-9\-_.:@ \u4e00-\u9fff\u3400-\u4dbf]/g, "");
+}
+
 // Dynamic import to avoid hard dependency at module level
 let _lancedb: typeof import("@lancedb/lancedb") | null = null;
 
@@ -93,7 +99,7 @@ export class LanceDBAdapter implements StorageAdapter {
 
   async update(id: string, record: MemoryRecord): Promise<void> {
     if (!this.table) throw new Error("Table not initialized");
-    await this.table.delete(`id = '${id}'`);
+    await this.table.delete(`id = '${sanitize(id)}'`);
     await this.table.add([record]);
   }
 
@@ -113,7 +119,7 @@ export class LanceDBAdapter implements StorageAdapter {
     let query = this.table.vectorSearch(vector).distanceType("cosine").limit(limit * 3);
 
     if (scopeFilter?.length) {
-      const scopeExpr = scopeFilter.map((s) => `'${s}'`).join(", ");
+      const scopeExpr = scopeFilter.map((s) => `'${sanitize(s)}'`).join(", ");
       query = query.where(`scope IN (${scopeExpr})`);
     }
 
@@ -139,7 +145,7 @@ export class LanceDBAdapter implements StorageAdapter {
     let query = this.table.search(queryText, "fts").limit(limit * 2);
 
     if (scopeFilter?.length) {
-      const scopeExpr = scopeFilter.map((s) => `'${s}'`).join(", ");
+      const scopeExpr = scopeFilter.map((s) => `'${sanitize(s)}'`).join(", ");
       query = query.where(`scope IN (${scopeExpr})`);
     }
 

@@ -70,7 +70,16 @@ export interface PluginConfig {
 // ============================================================================
 
 export function getDefaultDbPath(): string {
-  return join(homedir(), ".openclaw", "memory", "lancedb-pro");
+  // Prefer MNEMO_DB_PATH env, then ~/.mnemo/memory-db (open source default),
+  // then ~/.openclaw/memory/lancedb-pro (OpenClaw integration fallback)
+  if (process.env.MNEMO_DB_PATH) return process.env.MNEMO_DB_PATH;
+  const mnemoPath = join(homedir(), ".mnemo", "memory-db");
+  const openclawPath = join(homedir(), ".openclaw", "memory", "lancedb-pro");
+  try {
+    const { existsSync } = require("fs");
+    if (existsSync(openclawPath)) return openclawPath;
+  } catch {}
+  return mnemoPath;
 }
 
 export function resolveEnvVars(value: string): string {
@@ -223,11 +232,16 @@ export function parsePluginConfig(value: unknown): PluginConfig {
 }
 
 // ============================================================================
-// Load config from ~/.openclaw/openclaw.json
+// Load config from config file
+// Checks: MNEMO_CONFIG env → ~/.mnemo/mnemo.json → ~/.openclaw/openclaw.json
 // ============================================================================
 
 export function loadConfigFromOpenClaw(): PluginConfig {
-  const configPath = join(homedir(), ".openclaw", "openclaw.json");
+  const { existsSync } = require("fs");
+  const envPath = process.env.MNEMO_CONFIG;
+  const mnemoPath = join(homedir(), ".mnemo", "mnemo.json");
+  const openclawPath = join(homedir(), ".openclaw", "openclaw.json");
+  const configPath = envPath || (existsSync(mnemoPath) ? mnemoPath : openclawPath);
   let raw: string;
   try {
     raw = readFileSync(configPath, "utf8");
