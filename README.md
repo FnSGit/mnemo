@@ -306,3 +306,9 @@ Areas where we'd love help:
 <p align="center">
   <sub>Built with cognitive science, not hype.</sub>
 </p>
+
+---
+
+<sub>
+**Trademarks:** LanceDB is a trademark of LanceDB, Inc. Neo4j is a trademark of Neo4j, Inc. Mnemo is not affiliated with, endorsed by, or sponsored by LanceDB, Inc. or Neo4j, Inc. LanceDB and Neo4j are used as default storage backends under their respective open-source licenses (Apache 2.0 and GPLv3).
+</sub>

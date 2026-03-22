@@ -185,7 +185,7 @@ export class SmartExtractor {
           result.push(text);
         } else {
           this.debugLog(
-            `memory-lancedb-pro: smart-extractor: embedding noise filtered: ${text.slice(0, 80)}`,
+            `mnemo: smart-extractor: embedding noise filtered: ${text.slice(0, 80)}`,
           );
         }
       } catch {
@@ -209,7 +209,7 @@ export class SmartExtractor {
       const vec = await this.embedder.embed(tail);
       if (vec && vec.length > 0) {
         noiseBank.learn(vec);
-        this.debugLog("memory-lancedb-pro: smart-extractor: learned noise from zero-extraction");
+        this.debugLog("mnemo: smart-extractor: learned noise from zero-extraction");
       }
     } catch {
       // Non-critical — silently skip
@@ -248,19 +248,19 @@ export class SmartExtractor {
 
     if (!result) {
       this.debugLog(
-        "memory-lancedb-pro: smart-extractor: extract-candidates returned null",
+        "mnemo: smart-extractor: extract-candidates returned null",
       );
       return [];
     }
     if (!result.memories || !Array.isArray(result.memories)) {
       this.debugLog(
-        `memory-lancedb-pro: smart-extractor: extract-candidates returned unexpected shape keys=${Object.keys(result).join(",") || "(none)"}`,
+        `mnemo: smart-extractor: extract-candidates returned unexpected shape keys=${Object.keys(result).join(",") || "(none)"}`,
       );
       return [];
     }
 
     this.debugLog(
-      `memory-lancedb-pro: smart-extractor: extract-candidates raw memories=${result.memories.length}`,
+      `mnemo: smart-extractor: extract-candidates raw memories=${result.memories.length}`,
     );
 
     // Validate and normalize candidates
@@ -273,7 +273,7 @@ export class SmartExtractor {
       if (!category) {
         invalidCategoryCount++;
         this.debugLog(
-          `memory-lancedb-pro: smart-extractor: dropping candidate due to invalid category rawCategory=${JSON.stringify(raw.category ?? "")} abstract=${JSON.stringify((raw.abstract ?? "").trim().slice(0, 120))}`,
+          `mnemo: smart-extractor: dropping candidate due to invalid category rawCategory=${JSON.stringify(raw.category ?? "")} abstract=${JSON.stringify((raw.abstract ?? "").trim().slice(0, 120))}`,
         );
         continue;
       }
@@ -286,14 +286,14 @@ export class SmartExtractor {
       if (!abstract || abstract.length < 5) {
         shortAbstractCount++;
         this.debugLog(
-          `memory-lancedb-pro: smart-extractor: dropping candidate due to short abstract category=${category} abstract=${JSON.stringify(abstract)}`,
+          `mnemo: smart-extractor: dropping candidate due to short abstract category=${category} abstract=${JSON.stringify(abstract)}`,
         );
         continue;
       }
       if (isNoise(abstract)) {
         noiseAbstractCount++;
         this.debugLog(
-          `memory-lancedb-pro: smart-extractor: dropping candidate due to noise abstract category=${category} abstract=${JSON.stringify(abstract.slice(0, 120))}`,
+          `mnemo: smart-extractor: dropping candidate due to noise abstract category=${category} abstract=${JSON.stringify(abstract.slice(0, 120))}`,
         );
         continue;
       }
@@ -302,7 +302,7 @@ export class SmartExtractor {
     }
 
     this.debugLog(
-      `memory-lancedb-pro: smart-extractor: validation summary accepted=${candidates.length}, invalidCategory=${invalidCategoryCount}, shortAbstract=${shortAbstractCount}, noiseAbstract=${noiseAbstractCount}`,
+      `mnemo: smart-extractor: validation summary accepted=${candidates.length}, invalidCategory=${invalidCategoryCount}, shortAbstract=${shortAbstractCount}, noiseAbstract=${noiseAbstractCount}`,
     );
 
     return candidates;

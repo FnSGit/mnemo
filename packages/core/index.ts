@@ -1,6 +1,6 @@
 /**
- * Memory LanceDB Pro Plugin
- * Enhanced LanceDB-backed long-term memory with hybrid retrieval and multi-scope isolation
+ * Mnemo Memory Plugin
+ * Cognitive memory framework with hybrid retrieval, multi-scope isolation, and management CLI
  */
 
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
@@ -319,7 +319,7 @@ const DEFAULT_REFLECTION_SESSION_TTL_MS = 30 * 60 * 1000;
 const DEFAULT_REFLECTION_MAX_TRACKED_SESSIONS = 200;
 const DEFAULT_REFLECTION_ERROR_SCAN_MAX_CHARS = 8_000;
 const REFLECTION_FALLBACK_MARKER = "(fallback) Reflection generation failed; storing minimal pointer only.";
-const DIAG_BUILD_TAG = "memory-lancedb-pro-diag-20260308-0058";
+const DIAG_BUILD_TAG = "mnemo-diag-20260308-0058";
 
 type ReflectionErrorSignal = {
   at: number;
@@ -731,7 +731,7 @@ function stripLeadingInboundMetadata(text: string): string {
       // Sentinel line not followed by a ```json fenced block — unexpected format.
       // Log and return original text to avoid lossy stripping.
       _autoCaptureDebugLog(
-        `memory-lancedb-pro: stripLeadingInboundMetadata: sentinel line not followed by json fenced block at line ${index}, returning original text`,
+        `mnemo: stripLeadingInboundMetadata: sentinel line not followed by json fenced block at line ${index}, returning original text`,
       );
       return text;
     }
@@ -1612,9 +1612,9 @@ const pluginVersion = getPluginVersion();
 
 const memoryLanceDBProPlugin = {
   id: "memory-lancedb-pro",
-  name: "Memory (LanceDB Pro)",
+  name: "Mnemo Memory",
   description:
-    "Enhanced LanceDB-backed long-term memory with hybrid retrieval, multi-scope isolation, and management CLI",
+    "Cognitive memory framework with hybrid retrieval, multi-scope isolation, and management CLI",
   kind: "memory" as const,
 
   register(api: OpenClawPluginApi) {
@@ -1629,7 +1629,7 @@ const memoryLanceDBProPlugin = {
       validateStoragePath(resolvedDbPath);
     } catch (err) {
       api.logger.warn(
-        `memory-lancedb-pro: storage path issue — ${String(err)}\n` +
+        `mnemo: storage path issue — ${String(err)}\n` +
         `  The plugin will still attempt to start, but writes may fail.`,
       );
     }
@@ -1682,7 +1682,7 @@ const memoryLanceDBProPlugin = {
 
     // WAL recovery: fire-and-forget on startup
     recoverPendingWrites().catch((err) => {
-      api.logger.warn(`memory-lancedb-pro: WAL recovery failed — ${String(err)}`);
+      api.logger.warn(`mnemo: WAL recovery failed — ${String(err)}`);
     });
 
     // Initialize smart extraction
@@ -1710,7 +1710,7 @@ const memoryLanceDBProPlugin = {
           (msg: string) => api.logger.debug(msg),
         );
         noiseBank.init(embedder).catch((err) =>
-          api.logger.debug(`memory-lancedb-pro: noise bank init: ${String(err)}`),
+          api.logger.debug(`mnemo: noise bank init: ${String(err)}`),
         );
 
         smartExtractor = new SmartExtractor(store, embedder, llmClient, {
@@ -1723,9 +1723,9 @@ const memoryLanceDBProPlugin = {
           noiseBank,
         });
 
-        api.logger.info("memory-lancedb-pro: smart extraction enabled (LLM model: " + llmModel + ", noise bank: ON)");
+        api.logger.info("mnemo: smart extraction enabled (LLM model: " + llmModel + ", noise bank: ON)");
       } catch (err) {
-        api.logger.warn(`memory-lancedb-pro: smart extraction init failed, falling back to regex: ${String(err)}`);
+        api.logger.warn(`mnemo: smart extraction init failed, falling back to regex: ${String(err)}`);
       }
     }
 
@@ -1787,7 +1787,7 @@ const memoryLanceDBProPlugin = {
           }
         }
       } catch (err) {
-        api.logger.warn(`memory-lancedb-pro: tier maintenance preload failed: ${String(err)}`);
+        api.logger.warn(`mnemo: tier maintenance preload failed: ${String(err)}`);
       }
 
       const candidates = Array.from(lifecycleEntries.values())
@@ -1819,11 +1819,11 @@ const memoryLanceDBProPlugin = {
 
         if (transitions.length > 0) {
           api.logger.info(
-            `memory-lancedb-pro: tier maintenance applied ${transitions.length} transition(s)`,
+            `mnemo: tier maintenance applied ${transitions.length} transition(s)`,
           );
         }
       } catch (err) {
-        api.logger.warn(`memory-lancedb-pro: tier maintenance failed: ${String(err)}`);
+        api.logger.warn(`mnemo: tier maintenance failed: ${String(err)}`);
       }
 
       return tierOverrides;
@@ -1932,9 +1932,9 @@ const memoryLanceDBProPlugin = {
     _autoCaptureDebugLog = (msg: string) => api.logger.debug(msg);
 
     api.logger.info(
-      `memory-lancedb-pro@${pluginVersion}: plugin registered (db: ${resolvedDbPath}, model: ${config.embedding.model || "text-embedding-3-small"}, smartExtraction: ${smartExtractor ? 'ON' : 'OFF'})`
+      `mnemo@${pluginVersion}: plugin registered (db: ${resolvedDbPath}, model: ${config.embedding.model || "text-embedding-3-small"}, smartExtraction: ${smartExtractor ? 'ON' : 'OFF'})`
     );
-    api.logger.info(`memory-lancedb-pro: diagnostic build tag loaded (${DIAG_BUILD_TAG})`);
+    api.logger.info(`mnemo: diagnostic build tag loaded (${DIAG_BUILD_TAG})`);
 
     api.on("message_received", (event, ctx) => {
       const conversationKey = buildAutoCaptureConversationKeyFromIngress(
@@ -1949,7 +1949,7 @@ const memoryLanceDBProPlugin = {
         pruneMapIfOver(autoCapturePendingIngressTexts, AUTO_CAPTURE_MAP_MAX_ENTRIES);
       }
       api.logger.debug(
-        `memory-lancedb-pro: ingress message_received channel=${ctx.channelId} account=${ctx.accountId || "unknown"} conversation=${ctx.conversationId || "unknown"} from=${event.from} len=${event.content.trim().length} preview=${summarizeTextPreview(event.content)}`,
+        `mnemo: ingress message_received channel=${ctx.channelId} account=${ctx.accountId || "unknown"} conversation=${ctx.conversationId || "unknown"} from=${event.from} len=${event.content.trim().length} preview=${summarizeTextPreview(event.content)}`,
       );
     });
 
@@ -1963,7 +1963,7 @@ const memoryLanceDBProPlugin = {
         return;
       }
       api.logger.debug(
-        `memory-lancedb-pro: ingress before_message_write agent=${ctx.agentId || event.agentId || "unknown"} sessionKey=${ctx.sessionKey || event.sessionKey || "unknown"} role=${role} ${summarizeMessageContent(message?.content)}`,
+        `mnemo: ingress before_message_write agent=${ctx.agentId || event.agentId || "unknown"} sessionKey=${ctx.sessionKey || event.sessionKey || "unknown"} role=${role} ${summarizeMessageContent(message?.content)}`,
       );
     });
 
@@ -2077,7 +2077,7 @@ const memoryLanceDBProPlugin = {
 
               if (isRedundant) {
                 api.logger.debug?.(
-                  `memory-lancedb-pro: skipping redundant memory ${r.entry.id.slice(0, 8)} (last seen at turn ${lastTurn}, current turn ${currentTurn}, min ${minRepeated})`,
+                  `mnemo: skipping redundant memory ${r.entry.id.slice(0, 8)} (last seen at turn ${lastTurn}, current turn ${currentTurn}, min ${minRepeated})`,
                 );
               }
               return !isRedundant;
@@ -2086,7 +2086,7 @@ const memoryLanceDBProPlugin = {
             if (filteredResults.length === 0) {
               if (results.length > 0) {
                 api.logger.info?.(
-                  `memory-lancedb-pro: all ${results.length} memories were filtered out due to redundancy policy`,
+                  `mnemo: all ${results.length} memories were filtered out due to redundancy policy`,
                 );
               }
               return;
@@ -2113,7 +2113,7 @@ const memoryLanceDBProPlugin = {
             .join("\n");
 
           api.logger.info?.(
-            `memory-lancedb-pro: injecting ${finalResults.length} memories into context for agent ${agentId}`,
+            `mnemo: injecting ${finalResults.length} memories into context for agent ${agentId}`,
           );
 
           return {
@@ -2125,7 +2125,7 @@ const memoryLanceDBProPlugin = {
               `</relevant-memories>`,
           };
         } catch (err) {
-          api.logger.warn(`memory-lancedb-pro: recall failed: ${String(err)}`);
+          api.logger.warn(`mnemo: recall failed: ${String(err)}`);
         }
       });
     }
@@ -2145,7 +2145,7 @@ const memoryLanceDBProPlugin = {
           const sessionKey = ctx?.sessionKey || (event as any).sessionKey || "unknown";
 
           api.logger.debug(
-            `memory-lancedb-pro: auto-capture agent_end payload for agent ${agentId} (sessionKey=${sessionKey}, captureAssistant=${config.captureAssistant === true}, ${summarizeAgentEndMessages(event.messages)})`,
+            `mnemo: auto-capture agent_end payload for agent ${agentId} (sessionKey=${sessionKey}, captureAssistant=${config.captureAssistant === true}, ${summarizeAgentEndMessages(event.messages)})`,
           );
 
           // Extract text content from messages
@@ -2236,31 +2236,31 @@ const memoryLanceDBProPlugin = {
           const minMessages = config.extractMinMessages ?? 2;
           if (skippedAutoCaptureTexts > 0) {
             api.logger.debug(
-              `memory-lancedb-pro: auto-capture skipped ${skippedAutoCaptureTexts} injected/system text block(s) for agent ${agentId}`,
+              `mnemo: auto-capture skipped ${skippedAutoCaptureTexts} injected/system text block(s) for agent ${agentId}`,
             );
           }
           if (pendingIngressTexts.length > 0) {
             api.logger.debug(
-              `memory-lancedb-pro: auto-capture using ${pendingIngressTexts.length} pending ingress text(s) for agent ${agentId}`,
+              `mnemo: auto-capture using ${pendingIngressTexts.length} pending ingress text(s) for agent ${agentId}`,
             );
           }
           if (texts.length !== eligibleTexts.length) {
             api.logger.debug(
-              `memory-lancedb-pro: auto-capture narrowed ${eligibleTexts.length} eligible history text(s) to ${texts.length} new text(s) for agent ${agentId}`,
+              `mnemo: auto-capture narrowed ${eligibleTexts.length} eligible history text(s) to ${texts.length} new text(s) for agent ${agentId}`,
             );
           }
           api.logger.debug(
-            `memory-lancedb-pro: auto-capture collected ${texts.length} text(s) for agent ${agentId} (minMessages=${minMessages}, smartExtraction=${smartExtractor ? "on" : "off"})`,
+            `mnemo: auto-capture collected ${texts.length} text(s) for agent ${agentId} (minMessages=${minMessages}, smartExtraction=${smartExtractor ? "on" : "off"})`,
           );
           if (texts.length === 0) {
             api.logger.debug(
-              `memory-lancedb-pro: auto-capture found no eligible texts after filtering for agent ${agentId}`,
+              `mnemo: auto-capture found no eligible texts after filtering for agent ${agentId}`,
             );
             return;
           }
           if (texts.length > 0) {
             api.logger.debug(
-              `memory-lancedb-pro: auto-capture text diagnostics for agent ${agentId}: ${texts.map((text, idx) => `#${idx + 1}(${summarizeCaptureDecision(text)})`).join(" | ")}`,
+              `mnemo: auto-capture text diagnostics for agent ${agentId}: ${texts.map((text, idx) => `#${idx + 1}(${summarizeCaptureDecision(text)})`).join(" | ")}`,
             );
           }
 
@@ -2272,13 +2272,13 @@ const memoryLanceDBProPlugin = {
             const cleanTexts = await smartExtractor.filterNoiseByEmbedding(texts);
             if (cleanTexts.length === 0) {
               api.logger.debug(
-                `memory-lancedb-pro: all texts filtered as embedding noise for agent ${agentId}`,
+                `mnemo: all texts filtered as embedding noise for agent ${agentId}`,
               );
               return;
             }
             if (cleanTexts.length >= minMessages) {
               api.logger.debug(
-                `memory-lancedb-pro: auto-capture running smart extraction for agent ${agentId} (${cleanTexts.length} clean texts >= ${minMessages})`,
+                `mnemo: auto-capture running smart extraction for agent ${agentId} (${cleanTexts.length} clean texts >= ${minMessages})`,
               );
               const conversationText = cleanTexts.join("\n");
               const stats = await smartExtractor.extractAndPersist(
@@ -2287,23 +2287,23 @@ const memoryLanceDBProPlugin = {
               );
               if (stats.created > 0 || stats.merged > 0) {
                 api.logger.info(
-                  `memory-lancedb-pro: smart-extracted ${stats.created} created, ${stats.merged} merged, ${stats.skipped} skipped for agent ${agentId}`
+                  `mnemo: smart-extracted ${stats.created} created, ${stats.merged} merged, ${stats.skipped} skipped for agent ${agentId}`
                 );
                 return; // Smart extraction handled everything
               }
 
               api.logger.info(
-                `memory-lancedb-pro: smart extraction produced no persisted memories for agent ${agentId} (created=${stats.created}, merged=${stats.merged}, skipped=${stats.skipped}); falling back to regex capture`,
+                `mnemo: smart extraction produced no persisted memories for agent ${agentId} (created=${stats.created}, merged=${stats.merged}, skipped=${stats.skipped}); falling back to regex capture`,
               );
             } else {
               api.logger.debug(
-                `memory-lancedb-pro: auto-capture skipped smart extraction for agent ${agentId} (${cleanTexts.length} < ${minMessages})`,
+                `mnemo: auto-capture skipped smart extraction for agent ${agentId} (${cleanTexts.length} < ${minMessages})`,
               );
             }
           }
 
           api.logger.debug(
-            `memory-lancedb-pro: auto-capture running regex fallback for agent ${agentId}`,
+            `mnemo: auto-capture running regex fallback for agent ${agentId}`,
           );
 
           // ----------------------------------------------------------------
@@ -2313,17 +2313,17 @@ const memoryLanceDBProPlugin = {
           if (toCapture.length === 0) {
             if (texts.length > 0) {
               api.logger.debug(
-                `memory-lancedb-pro: regex fallback diagnostics for agent ${agentId}: ${texts.map((text, idx) => `#${idx + 1}(${summarizeCaptureDecision(text)})`).join(" | ")}`,
+                `mnemo: regex fallback diagnostics for agent ${agentId}: ${texts.map((text, idx) => `#${idx + 1}(${summarizeCaptureDecision(text)})`).join(" | ")}`,
               );
             }
             api.logger.info(
-              `memory-lancedb-pro: regex fallback found 0 capturable texts for agent ${agentId}`,
+              `mnemo: regex fallback found 0 capturable texts for agent ${agentId}`,
             );
             return;
           }
 
           api.logger.info(
-            `memory-lancedb-pro: regex fallback found ${toCapture.length} capturable text(s) for agent ${agentId}`,
+            `mnemo: regex fallback found ${toCapture.length} capturable text(s) for agent ${agentId}`,
           );
 
           // Store each capturable piece (limit to 3 per conversation)
@@ -2341,7 +2341,7 @@ const memoryLanceDBProPlugin = {
               ]);
             } catch (err) {
               api.logger.warn(
-                `memory-lancedb-pro: auto-capture duplicate pre-check failed, continue store: ${String(err)}`,
+                `mnemo: auto-capture duplicate pre-check failed, continue store: ${String(err)}`,
               );
             }
 
@@ -2384,11 +2384,11 @@ const memoryLanceDBProPlugin = {
 
           if (stored > 0) {
             api.logger.info(
-              `memory-lancedb-pro: auto-captured ${stored} memories for agent ${agentId} in scope ${defaultScope}`,
+              `mnemo: auto-captured ${stored} memories for agent ${agentId} in scope ${defaultScope}`,
             );
           }
         } catch (err) {
-          api.logger.warn(`memory-lancedb-pro: capture failed: ${String(err)}`);
+          api.logger.warn(`mnemo: capture failed: ${String(err)}`);
         }
       });
     }
@@ -2436,7 +2436,7 @@ const memoryLanceDBProPlugin = {
           api.logger.warn(`self-improvement: bootstrap inject failed: ${String(err)}`);
         }
       }, {
-        name: "memory-lancedb-pro.self-improvement.agent-bootstrap",
+        name: "mnemo.self-improvement.agent-bootstrap",
         description: "Inject self-improvement reminder on agent bootstrap",
       });
 
@@ -2485,11 +2485,11 @@ const memoryLanceDBProPlugin = {
         };
 
         api.registerHook("command:new", appendSelfImprovementNote, {
-          name: "memory-lancedb-pro.self-improvement.command-new",
+          name: "mnemo.self-improvement.command-new",
           description: "Append self-improvement note before /new",
         });
         api.registerHook("command:reset", appendSelfImprovementNote, {
-          name: "memory-lancedb-pro.self-improvement.command-reset",
+          name: "mnemo.self-improvement.command-reset",
           description: "Append self-improvement note before /reset",
         });
       }
@@ -2579,7 +2579,7 @@ const memoryLanceDBProPlugin = {
           return {
             prependContext: [
               "<inherited-rules>",
-              "Stable rules inherited from memory-lancedb-pro reflections. Treat as long-term behavioral constraints unless user overrides.",
+              "Stable rules inherited from Mnemo reflections. Treat as long-term behavioral constraints unless user overrides.",
               body,
               "</inherited-rules>",
             ].join("\n"),
@@ -2803,7 +2803,7 @@ const memoryLanceDBProPlugin = {
                 area: candidate.area || "config",
                 priority: candidate.priority || "medium",
                 status: candidate.status || "pending",
-                source: `memory-lancedb-pro/reflection:${relPath}`,
+                source: `mnemo/reflection:${relPath}`,
               });
             }
           }
@@ -2910,11 +2910,11 @@ const memoryLanceDBProPlugin = {
       };
 
       api.registerHook("command:new", runMemoryReflection, {
-        name: "memory-lancedb-pro.memory-reflection.command-new",
+        name: "mnemo.memory-reflection.command-new",
         description: "Generate reflection log before /new",
       });
       api.registerHook("command:reset", runMemoryReflection, {
-        name: "memory-lancedb-pro.memory-reflection.command-reset",
+        name: "mnemo.memory-reflection.command-reset",
         description: "Generate reflection log before /reset",
       });
       api.logger.info("memory-reflection: integrated hooks registered (command:new, command:reset, after_tool_call, before_agent_start, before_prompt_build)");
@@ -3031,11 +3031,11 @@ const memoryLanceDBProPlugin = {
           api.logger.warn(`session-memory: failed to save: ${String(err)}`);
         }
       }, {
-        name: "memory-lancedb-pro-session-memory",
+        name: "mnemo-session-memory",
         description: "Store /new session summaries in LanceDB memory",
       });
 
-      api.logger.info("session-memory: hook registered for command:new as memory-lancedb-pro-session-memory");
+      api.logger.info("session-memory: hook registered for command:new as mnemo-session-memory");
     }
     if (config.sessionStrategy === "none") {
       api.logger.info("session-strategy: using none (plugin memory-reflection hooks disabled)");
@@ -3087,10 +3087,10 @@ const memoryLanceDBProPlugin = {
         }
 
         api.logger.info(
-          `memory-lancedb-pro: backup completed (${allMemories.length} entries → ${backupFile})`,
+          `mnemo: backup completed (${allMemories.length} entries → ${backupFile})`,
         );
       } catch (err) {
-        api.logger.warn(`memory-lancedb-pro: backup failed: ${String(err)}`);
+        api.logger.warn(`mnemo: backup failed: ${String(err)}`);
       }
     }
 
@@ -3139,7 +3139,7 @@ const memoryLanceDBProPlugin = {
             );
 
             api.logger.info(
-              `memory-lancedb-pro: initialized successfully ` +
+              `mnemo: initialized successfully ` +
               `(embedding: ${embedTest.success ? "OK" : "FAIL"}, ` +
               `retrieval: ${retrievalTest.success ? "OK" : "FAIL"}, ` +
               `mode: ${retrievalTest.mode}, ` +
@@ -3148,17 +3148,17 @@ const memoryLanceDBProPlugin = {
 
             if (!embedTest.success) {
               api.logger.warn(
-                `memory-lancedb-pro: embedding test failed: ${embedTest.error}`,
+                `mnemo: embedding test failed: ${embedTest.error}`,
               );
             }
             if (!retrievalTest.success) {
               api.logger.warn(
-                `memory-lancedb-pro: retrieval test failed: ${retrievalTest.error}`,
+                `mnemo: retrieval test failed: ${retrievalTest.error}`,
               );
             }
           } catch (error) {
             api.logger.warn(
-              `memory-lancedb-pro: startup checks failed: ${String(error)}`,
+              `mnemo: startup checks failed: ${String(error)}`,
             );
           }
         };
@@ -3173,7 +3173,7 @@ const memoryLanceDBProPlugin = {
             const counts = await upgrader.countLegacy();
             if (counts.legacy > 0) {
               api.logger.info(
-                `memory-lancedb-pro: found ${counts.legacy} legacy memories (of ${counts.total} total) that can be upgraded to the new smart memory format. ` +
+                `mnemo: found ${counts.legacy} legacy memories (of ${counts.total} total) that can be upgraded to the new smart memory format. ` +
                 `Run 'openclaw memory-pro upgrade' to convert them.`
               );
             }
@@ -3191,7 +3191,7 @@ const memoryLanceDBProPlugin = {
           clearInterval(backupTimer);
           backupTimer = null;
         }
-        api.logger.info("memory-lancedb-pro: stopped");
+        api.logger.info("mnemo: stopped");
       },
     });
   },
@@ -3199,7 +3199,7 @@ const memoryLanceDBProPlugin = {
 
 export function parsePluginConfig(value: unknown): PluginConfig {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new Error("memory-lancedb-pro config required");
+    throw new Error("mnemo config required");
   }
   const cfg = value as Record<string, unknown>;
 

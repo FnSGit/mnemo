@@ -103,7 +103,7 @@ export function parsePositiveInt(value: unknown): number | undefined {
 
 export function parsePluginConfig(value: unknown): PluginConfig {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new Error("memory-lancedb-pro config required");
+    throw new Error("mnemo config required");
   }
   const cfg = value as Record<string, unknown>;
 

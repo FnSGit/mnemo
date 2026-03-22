@@ -488,7 +488,7 @@ async function checkAutoSync() {
 
 async function main() {
   console.log(`\n${C.bold}🧠 Mnemo Health Check${C.reset}`);
-  console.log(`${C.dim}memory-lancedb-pro v1.1.0-beta.8 · ${new Date().toISOString().slice(0, 19)}${C.reset}`);
+  console.log(`${C.dim}mnemo v1.1.0-beta.8 · ${new Date().toISOString().slice(0, 19)}${C.reset}`);
 
   const gwOk = await checkGateway();
   await checkConfig();

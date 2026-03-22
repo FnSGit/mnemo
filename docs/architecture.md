@@ -1,6 +1,6 @@
 # OpenClaw Memory Architecture v1.1.0
 
-> memory-lancedb-pro · 2026-03-22
+> mnemo · 2026-03-22
 
 ---
 

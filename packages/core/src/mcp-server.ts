@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: LicenseRef-Mnemo-Pro
 /**
- * MCP Server for memory-lancedb-pro
+ * MCP Server for Mnemo
  *
  * Exposes memory tools (search, store, delete, update, list, stats) over
  * stdio JSON-RPC so Claude Code can call them directly without going through
@@ -11,7 +11,7 @@
  *
  * Register with Claude Code:
  *   claude mcp add memory -s user -- node --import jiti/register \
- *     /path/to/memory-lancedb-pro/src/mcp-server.ts
+ *     /path/to/mnemo/src/mcp-server.ts
  */
 
 // Redirect console.log to stderr — stdout is reserved for JSON-RPC
@@ -43,7 +43,7 @@ const dbPath = config.dbPath || getDefaultDbPath();
 try {
   validateStoragePath(dbPath);
 } catch (err) {
-  console.error(`memory-lancedb-pro mcp: storage path issue — ${String(err)}`);
+  console.error(`mnemo mcp: storage path issue — ${String(err)}`);
 }
 
 const vectorDim = getVectorDimensions(
@@ -76,7 +76,7 @@ store.setSemanticGate(semanticGate);
 
 // WAL recovery: fire-and-forget on startup
 recoverPendingWrites().catch((err) => {
-  console.error(`memory-lancedb-pro mcp: WAL recovery failed — ${String(err)}`);
+  console.error(`mnemo mcp: WAL recovery failed — ${String(err)}`);
 });
 
 // ============================================================================
@@ -126,7 +126,7 @@ function clamp01(value: number, fallback = 0.7): number {
 // ============================================================================
 
 const server = new McpServer({
-  name: "memory-lancedb-pro",
+  name: "mnemo",
   version: "1.0.0",
 });
 
@@ -406,7 +406,7 @@ server.tool(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("memory-lancedb-pro MCP server started (stdio)");
+  console.error("mnemo MCP server started (stdio)");
 }
 
 main().catch((err) => {

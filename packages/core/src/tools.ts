@@ -193,7 +193,7 @@ export function registerSelfImprovementLogTool(api: OpenClawPluginApi, context: 
             category,
             area,
             priority,
-            source: "memory-lancedb-pro/self_improvement_log",
+            source: "mnemo/self_improvement_log",
           });
           const fileName = type === "learning" ? "LEARNINGS.md" : "ERRORS.md";
 
@@ -604,7 +604,7 @@ export function registerMemoryStoreTool(
             ]);
           } catch (err) {
             console.warn(
-              `memory-lancedb-pro: duplicate pre-check failed, continue store: ${String(err)}`,
+              `mnemo: duplicate pre-check failed, continue store: ${String(err)}`,
             );
           }
 

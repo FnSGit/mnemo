@@ -10,7 +10,7 @@ openclaw plugins install mnemo
 
 ## What Gets Configured
 
-- Plugin: `memory-lancedb-pro` registered in openclaw.json
+- Plugin: `memory-lancedb-pro` registered in openclaw.json (plugin id kept for backwards compatibility)
 - Hooks: memory-extractor, query-context, memory-watcher
 - Cron: L1 distillers, daily-md-extractor, maintenance tasks
 - Services: Graphiti (launchd)

@@ -84,7 +84,7 @@ export const loadLanceDB = async (): Promise<
     return await lancedbImportPromise;
   } catch (err) {
     throw new Error(
-      `memory-lancedb-pro: failed to load LanceDB. ${String(err)}`,
+      `mnemo: failed to load LanceDB. ${String(err)}`,
       { cause: err },
     );
   }
@@ -1174,7 +1174,7 @@ export class MemoryStore {
           try {
             await this.table!.dropIndex((idx as any).name || "text");
           } catch (err) {
-            console.warn(`memory-lancedb-pro: dropIndex(${(idx as any).name || "text"}) failed:`, err);
+            console.warn(`mnemo: dropIndex(${(idx as any).name || "text"}) failed:`, err);
           }
         }
       }

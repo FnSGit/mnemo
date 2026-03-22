@@ -165,7 +165,7 @@ export async function recoverPendingWrites(): Promise<{ recovered: number; faile
   }
 
   console.log(
-    `memory-lancedb-pro: WAL recovery — recovered=${recovered}, failed=${failed}, total_pending=${pending.length}`,
+    `mnemo: WAL recovery — recovered=${recovered}, failed=${failed}, total_pending=${pending.length}`,
   );
 
   return { recovered, failed };

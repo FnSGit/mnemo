@@ -309,7 +309,7 @@ export class Embedder {
     }));
 
     if (this.clients.length > 1) {
-      console.log(`[memory-lancedb-pro] Initialized ${this.clients.length} API keys for round-robin rotation`);
+      console.log(`[mnemo] Initialized ${this.clients.length} API keys for round-robin rotation`);
     }
 
     this.dimensions = getVectorDimensions(config.model, config.dimensions);
@@ -368,7 +368,7 @@ export class Embedder {
 
         if (this.isRateLimitError(error) && attempt < maxAttempts - 1) {
           console.log(
-            `[memory-lancedb-pro] Attempt ${attempt + 1}/${maxAttempts} hit rate limit, rotating to next key...`
+            `[mnemo] Attempt ${attempt + 1}/${maxAttempts} hit rate limit, rotating to next key...`
           );
           continue;
         }

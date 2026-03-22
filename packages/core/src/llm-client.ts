@@ -84,13 +84,13 @@ export function createLlmClient(config: LlmClientConfig): LlmClient {
         const raw = response.choices?.[0]?.message?.content;
         if (!raw) {
           log(
-            `memory-lancedb-pro: llm-client [${label}] empty response content from model ${config.model}`,
+            `mnemo: llm-client [${label}] empty response content from model ${config.model}`,
           );
           return null;
         }
         if (typeof raw !== "string") {
           log(
-            `memory-lancedb-pro: llm-client [${label}] non-string response content type=${Array.isArray(raw) ? "array" : typeof raw} from model ${config.model}`,
+            `mnemo: llm-client [${label}] non-string response content type=${Array.isArray(raw) ? "array" : typeof raw} from model ${config.model}`,
           );
           return null;
         }
@@ -98,7 +98,7 @@ export function createLlmClient(config: LlmClientConfig): LlmClient {
         const jsonStr = extractJsonFromResponse(raw);
         if (!jsonStr) {
           log(
-            `memory-lancedb-pro: llm-client [${label}] no JSON object found (chars=${raw.length}, preview=${JSON.stringify(previewText(raw))})`,
+            `mnemo: llm-client [${label}] no JSON object found (chars=${raw.length}, preview=${JSON.stringify(previewText(raw))})`,
           );
           return null;
         }
@@ -107,14 +107,14 @@ export function createLlmClient(config: LlmClientConfig): LlmClient {
           return JSON.parse(jsonStr) as T;
         } catch (err) {
           log(
-            `memory-lancedb-pro: llm-client [${label}] JSON.parse failed: ${err instanceof Error ? err.message : String(err)} (jsonChars=${jsonStr.length}, jsonPreview=${JSON.stringify(previewText(jsonStr))})`,
+            `mnemo: llm-client [${label}] JSON.parse failed: ${err instanceof Error ? err.message : String(err)} (jsonChars=${jsonStr.length}, jsonPreview=${JSON.stringify(previewText(jsonStr))})`,
           );
           return null;
         }
       } catch (err) {
         // Graceful degradation — return null so caller can fall back
         log(
-          `memory-lancedb-pro: llm-client [${label}] request failed for model ${config.model}: ${err instanceof Error ? err.message : String(err)}`,
+          `mnemo: llm-client [${label}] request failed for model ${config.model}: ${err instanceof Error ? err.message : String(err)}`,
         );
         return null;
       }
