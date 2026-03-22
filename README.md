@@ -175,7 +175,7 @@ The open-source foundation. Full retrieval engine, no restrictions.
 
 | Feature | Details |
 |:---|:---|
-| Storage | Pluggable backend (LanceDB default, Qdrant/Chroma/PGVector planned) |
+| Storage | Pluggable backend — LanceDB (default), Qdrant, Chroma, PGVector |
 | Retrieval | Triple-path (Vector + BM25 + Graphiti) with RRF fusion |
 | Rerank | Cross-encoder (Voyage rerank-2) |
 | Decay | Weibull stretched-exponential, tier-specific β |
