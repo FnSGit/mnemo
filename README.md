@@ -34,7 +34,7 @@ The result: your AI agent's memory stays relevant instead of drowning in noise.
 
 ## Mnemo vs Paid Competitors
 
-| Capability | Mem0 $99 | Zep $199 | Letta $29 | Cognee $149 | **Mnemo Core** FREE | **Mnemo Pro** $49 |
+| Capability | Mem0 $99 | Zep $199 | Letta $29 | Cognee $149 | **Mnemo Core** FREE | **Mnemo Pro** $69 |
 |:---|:---:|:---:|:---:|:---:|:---:|:---:|
 | Vector search | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | BM25 keyword search | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
@@ -173,7 +173,7 @@ The open-source foundation. Full retrieval engine, no restrictions.
 | Noise filtering | Embedding-based noise bank + regex |
 | Temporal queries | Date format expansion (中/EN) |
 
-### Mnemo Pro — From $49/mo
+### Mnemo Pro — From $69/mo
 
 Everything in Core, plus enterprise features:
 
@@ -198,7 +198,7 @@ export MNEMO_LICENSE_TOKEN="mnemo_your_token"
 | Plan | Price | Devices | Support |
 |:---|:---|:---:|:---|
 | **Core** | Free forever | Unlimited | GitHub Issues |
-| **Indie** | $49/mo · $470/yr | 1 | Email |
+| **Indie** | $69/mo · $662/yr | 1 | Email |
 | **Team** | $149/mo · $1,430/yr | 5 | Priority + Slack |
 | **Enterprise** | Custom | Unlimited | Dedicated + SLA |
 
