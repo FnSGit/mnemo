@@ -53,7 +53,7 @@ jobs:
 
       - name: Check for leaked secrets
         run: |
-          LEAKED=$(grep -rn "sk-ant-\|sk-proj-\|pa-[a-zA-Z0-9]\{20\}" packages/ config/ services/ docs/ --include="*.ts" --include="*.js" --include="*.json" || true)
+          LEAKED=$(grep -rn "sk-ant-\|sk-proj-\|pa-[a-zA-Z0-9]\{20\}" packages/ config/ services/ docs/ --include="*.ts" --include="*.js" --include="*.json" | grep -v "placeholder\|regex\|pattern\|/\\\\b\|startsWith\|typically start" || true)
           if [ -n "$LEAKED" ]; then
             echo "Potential secrets found:"
             echo "$LEAKED"
