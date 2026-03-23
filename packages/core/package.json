@@ -1,9 +1,25 @@
 {
   "name": "@mnemoai/core",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Cognitive science-based AI memory framework — Weibull decay, triple-path retrieval, multi-backend storage",
   "type": "module",
-  "main": "index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./storage-adapter": {
+      "import": "./dist/src/storage-adapter.js",
+      "types": "./dist/src/storage-adapter.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "keywords": [
     "ai-memory",
     "long-term-memory",
@@ -47,12 +63,15 @@
     ]
   },
   "scripts": {
+    "build": "node build.mjs",
+    "prepublishOnly": "npm run build",
     "test": "node --test test/*.test.mjs",
     "test:openclaw-host": "node test/openclaw-host-functional.mjs",
     "version": "node scripts/sync-plugin-version.mjs openclaw.plugin.json package.json && git add openclaw.plugin.json"
   },
   "devDependencies": {
     "commander": "^14.0.0",
+    "esbuild": "^0.27.4",
     "jiti": "^2.6.0",
     "typescript": "^5.9.3"
   }

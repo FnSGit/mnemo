@@ -1293,10 +1293,6 @@ export class MemoryStore {
     return deleteCount;
   }
 
-  get hasFtsSupport(): boolean {
-    return this.ftsIndexCreated;
-  }
-
   /** Last FTS error for diagnostics */
   private _lastFtsError: string | null = null;
 

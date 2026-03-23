@@ -1,7 +1,9 @@
+src/
 test/
-*.test.*
-*.spec.*
+*.ts
+!dist/**
 tsconfig.json
+openclaw.plugin.json
 .github/
 examples/
 docs/

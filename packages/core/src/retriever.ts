@@ -6,7 +6,6 @@
 
 import type { MemoryEntry, MemoryStore, MemorySearchResult } from "./store.js";
 import type { Embedder } from "./embedder.js";
-import {
 import { filterNoise } from "./noise-filter.js";
 import type { DecayEngine, DecayableMemory } from "./decay-engine.js";
 import type { TierManager } from "./tier-manager.js";
