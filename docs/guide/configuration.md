@@ -71,7 +71,7 @@ const mnemo = await createMnemo({
 | Provider | baseURL | Model Example |
 |----------|---------|---------------|
 | OpenAI | `https://api.openai.com/v1` (default) | `text-embedding-3-small` |
-| Ollama | `http://localhost:11434/v1` | `nomic-embed-text` |
+| Ollama | `http://localhost:11434/v1` | `bge-m3` |
 | Voyage | `https://api.voyageai.com/v1` | `voyage-3-large` |
 | Jina | `https://api.jina.ai/v1` | `jina-embeddings-v3` |
 | Any OpenAI-compatible | Your endpoint | Your model |

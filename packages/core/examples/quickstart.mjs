@@ -8,7 +8,7 @@
  *   OPENAI_API_KEY=sk-... node quickstart.mjs
  *
  * Usage with Ollama (free, local):
- *   ollama pull nomic-embed-text
+ *   ollama pull bge-m3
  *   node quickstart.mjs --ollama
  */
 
@@ -21,8 +21,8 @@ const mnemo = await createMnemo({
     provider: "openai-compatible",
     apiKey: useOllama ? "ollama" : process.env.OPENAI_API_KEY,
     baseURL: useOllama ? "http://localhost:11434/v1" : "https://api.openai.com/v1",
-    model: useOllama ? "nomic-embed-text" : "text-embedding-3-small",
-    dimensions: useOllama ? 768 : 1536,
+    model: useOllama ? "bge-m3" : "text-embedding-3-small",
+    dimensions: useOllama ? 1024 : 1536,
   },
   dbPath: "./my-memory-db",
 });

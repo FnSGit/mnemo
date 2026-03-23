@@ -40,8 +40,8 @@ const EMBEDDING_PRESETS: Record<EmbeddingPreset, {
   ollama: {
     apiKeyEnv: "OLLAMA_API_KEY",
     baseURL: "http://localhost:11434/v1",
-    model: "nomic-embed-text",
-    dimensions: 768,
+    model: "bge-m3",
+    dimensions: 1024,
     fallbackApiKey: "ollama",
   },
   voyage: {

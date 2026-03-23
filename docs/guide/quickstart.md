@@ -49,8 +49,8 @@ const mnemo = await createMnemo({
     provider: 'openai-compatible',
     apiKey: 'ollama',
     baseURL: 'http://localhost:11434/v1',
-    model: 'nomic-embed-text',
-    dimensions: 768,
+    model: 'bge-m3',
+    dimensions: 1024,
   },
   dbPath: './my-memory-db',
 });

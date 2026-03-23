@@ -7,7 +7,7 @@ Run Mnemo entirely on your machine — no API keys, no cloud services, no cost.
 Install [Ollama](https://ollama.ai) and pull the embedding model:
 
 ```bash
-ollama pull nomic-embed-text
+ollama pull bge-m3
 ```
 
 ## Usage
@@ -20,8 +20,8 @@ const mnemo = await createMnemo({
     provider: 'openai-compatible',
     apiKey: 'ollama',                          // any non-empty string works
     baseURL: 'http://localhost:11434/v1',       // Ollama's OpenAI-compatible endpoint
-    model: 'nomic-embed-text',
-    dimensions: 768,
+    model: 'bge-m3',
+    dimensions: 1024,
   },
   dbPath: './local-memory-db',
 });
@@ -46,8 +46,8 @@ const mnemo = await createMnemo({
     provider: 'openai-compatible',
     apiKey: 'ollama',
     baseURL: 'http://localhost:11434/v1',
-    model: 'nomic-embed-text',
-    dimensions: 768,
+    model: 'bge-m3',
+    dimensions: 1024,
   },
   llm: {
     apiKey: 'ollama',
@@ -83,7 +83,7 @@ const mnemo = await createMnemo({
 
 | Component | Model | RAM | Speed |
 |-----------|-------|-----|-------|
-| Embedding | nomic-embed-text | ~300MB | ~5ms/query |
+| Embedding | bge-m3 | ~1.1GB | ~90ms/query |
 | LLM | qwen3:8b | ~5GB | ~500ms/extraction |
 | Reranker | bge-reranker-v2-m3 | ~1GB | ~50ms/rerank |
 
