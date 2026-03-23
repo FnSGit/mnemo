@@ -1,0 +1,54 @@
+{
+  "name": "@mnemoai/vercel-ai",
+  "version": "0.1.0",
+  "description": "Mnemo memory tools for the Vercel AI SDK",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "mnemo",
+    "ai-memory",
+    "vercel-ai",
+    "ai-sdk",
+    "tool-calling",
+    "agent-memory",
+    "long-term-memory"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Methux/mnemo.git",
+    "directory": "packages/vercel-ai"
+  },
+  "homepage": "https://docs.m-nemo.ai",
+  "bugs": {
+    "url": "https://github.com/Methux/mnemo/issues"
+  },
+  "author": "Mnemo Contributors",
+  "license": "MIT",
+  "peerDependencies": {
+    "ai": ">=4.0.0",
+    "zod": ">=3.0.0",
+    "@mnemoai/core": ">=1.1.0"
+  },
+  "devDependencies": {
+    "ai": "^4.0.0",
+    "zod": "^3.23.0",
+    "@mnemoai/core": "^1.1.5",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  }
+}

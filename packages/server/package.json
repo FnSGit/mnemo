@@ -1,0 +1,35 @@
+{
+  "name": "@mnemoai/server",
+  "version": "0.1.0",
+  "description": "Mnemo REST API server — expose memory store/recall/delete over HTTP",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "mnemo-server": "src/index.js"
+  },
+  "files": [
+    "src",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "mnemo",
+    "ai-memory",
+    "rest-api",
+    "memory-server"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Methux/mnemo.git",
+    "directory": "packages/server"
+  },
+  "homepage": "https://docs.m-nemo.ai",
+  "author": "Mnemo Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "@mnemoai/core": "^1.1.5"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}

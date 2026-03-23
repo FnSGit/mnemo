@@ -5,7 +5,8 @@
   "description": "Cognitive science-based AI memory framework",
   "workspaces": [
     "packages/core",
-    "packages/pro"
+    "packages/pro",
+    "packages/vercel-ai"
   ],
   "scripts": {
     "init": "node packages/tools/mnemo-init.js",
