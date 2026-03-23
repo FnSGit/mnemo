@@ -3,7 +3,6 @@ name: Deploy Docs
 on:
   push:
     branches: [main]
-    paths: [docs/**]
   workflow_dispatch:
 
 permissions:
@@ -19,6 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - run: npm install
       - run: npx vitepress build docs
       - uses: actions/upload-pages-artifact@v3
         with:
