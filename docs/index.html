@@ -169,7 +169,7 @@ Mnemo
 <a href="#features">Features</a>
 <a href="#comparison">Core vs Pro</a>
 <a href="#pricing">Pricing</a>
-<a href="#quickstart">Docs</a>
+<a href="https://methux.github.io/mnemo/" target="_blank">Docs</a>
 <a href="https://github.com/Methux/mnemo" target="_blank">GitHub</a>
 <a href="#pricing" class="nav-cta">Get Started</a>
 </div>
@@ -182,7 +182,7 @@ Mnemo
 <div class="hero-content">
 <div class="hero-badge">Open-source AI memory framework</div>
 <h1>AI memory that <span>forgets intelligently</span></h1>
-<p class="hero-sub">The first memory framework built on cognitive science. Runs 100% local at $0 or with cloud APIs. Weibull forgetting, triple-path retrieval, 10-stage pipeline.</p>
+<p class="hero-sub">A cognitive science-based memory framework for AI agents. Runs 100% local at $0 or with cloud APIs. Weibull forgetting, triple-path retrieval, 10-stage pipeline.</p>
 <div class="cta-group">
 <a href="#quickstart" class="btn btn-primary">Get Started &mdash; Free</a>
 <a href="#pricing" class="btn btn-secondary">Mnemo Pro &mdash; $69/mo</a>
@@ -346,19 +346,19 @@ Mnemo
 <h3>Core Local</h3>
 <p class="comp-price" style="color:#4ade80;font-weight:700;">$0/mo API &middot; 100% Offline</p>
 <ul class="comp-list">
-<li>Ollama embedding (nomic-embed-text)</li>
+<li>Ollama embedding (bge-m3)</li>
 <li>Ollama LLM extraction (qwen3:8b)</li>
 <li>Ollama cross-encoder rerank (bge-reranker)</li>
 <li>Weibull decay + tier lifecycle</li>
 <li>Triple-path retrieval (Vec+BM25+Graph)</li>
 <li>Contradiction detection</li>
 </ul>
-<div class="comp-note">Zero API cost. Beats Mem0 ($99) on retrieval quality.</div>
+<div class="comp-note">Zero API cost. Full offline capability.</div>
 </div>
 <div class="comp-card reveal">
 <div class="comp-badge">Hybrid</div>
 <h3>Core Hybrid</h3>
-<p class="comp-price">~$20/mo API &middot; MIT License</p>
+<p class="comp-price">~$5/mo API &middot; MIT License</p>
 <ul class="comp-list">
 <li>Voyage embedding (voyage-3-large)</li>
 <li>GPT-4.1-mini smart extraction</li>
@@ -381,7 +381,7 @@ Mnemo
 <li>Best for high-volume production</li>
 <li>Near Pro-level retrieval</li>
 </ul>
-<div class="comp-note">Top-tier models. Score 8.8/10 in benchmarks.</div>
+<div class="comp-note">Top-tier models. Near Pro-level retrieval quality.</div>
 </div>
 <div class="comp-card pro reveal">
 <div class="comp-badge">Pro</div>
@@ -395,7 +395,7 @@ Mnemo
 <li>Observability + access tracking</li>
 <li>Machine-bound license + priority support</li>
 </ul>
-<div class="comp-note">Full stack. Score 9.2/10 in benchmarks.</div>
+<div class="comp-note">Full stack. WAL + reflection + self-improvement.</div>
 </div>
 </div>
 </div>
@@ -461,7 +461,7 @@ Mnemo
 </div>
 <p style="text-align:center;color:var(--text3);font-size:.85rem;margin-top:24px;max-width:600px;margin-left:auto;margin-right:auto;">
 Mnemo pricing covers software licensing only. Embedding, LLM, and rerank API costs are separate &mdash; you bring your own API keys.
-Run 100% locally with <a href="https://ollama.com" style="color:var(--accent)">Ollama</a> for $0 API cost, or use cloud providers like Voyage and OpenAI (~$20-45/mo depending on usage).
+Run 100% locally with <a href="https://ollama.com" style="color:var(--accent)">Ollama</a> for $0 API cost, or use cloud providers like OpenAI and Voyage (~$5-45/mo depending on usage). Ecosystem: <a href="https://www.npmjs.com/package/@mnemoai/vercel-ai" style="color:var(--accent)">Vercel AI SDK</a>, <a href="https://www.npmjs.com/package/@mnemoai/server" style="color:var(--accent)">REST Server</a>, <a href="https://pypi.org/project/mnemo-memory/" style="color:var(--accent)">Python SDK</a>.
 </p>
 </div>
 </section>
@@ -479,15 +479,17 @@ Run 100% locally with <a href="https://ollama.com" style="color:var(--accent)">O
 <div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div>
 <span>100% Local ($0)</span>
 </div>
-<pre><code><span class="cm"># Pull Ollama models</span>
-<span class="fn">ollama</span> pull nomic-embed-text
-<span class="fn">ollama</span> pull qwen3:8b
-<span class="fn">ollama</span> pull bge-reranker-v2-m3
+<pre><code><span class="cm"># Install</span>
+<span class="fn">npm</span> install @mnemoai/core
 
-<span class="cm"># Start services</span>
-<span class="fn">git</span> clone https://github.com/Methux/mnemo
-<span class="fn">cp</span> config/mnemo.local.example.json ~/.mnemo/mnemo.json
-<span class="fn">docker</span> compose up -d</code></pre>
+<span class="cm"># Pull Ollama model</span>
+<span class="fn">ollama</span> pull bge-m3
+
+<span class="cm"># Done! Use preset in your code:</span>
+<span class="kw">const</span> mnemo <span class="op">=</span> <span class="kw">await</span> <span class="fn">createMnemo</span>({
+  preset<span class="op">:</span> <span class="str">'ollama'</span>,
+  dbPath<span class="op">:</span> <span class="str">'./memory-db'</span>
+});</code></pre>
 </div>
 <div class="code-block reveal">
 <div class="code-header">
@@ -497,12 +499,16 @@ Run 100% locally with <a href="https://ollama.com" style="color:var(--accent)">O
 <pre><code><span class="cm"># Install</span>
 <span class="fn">npm</span> install @mnemoai/core
 
-<span class="cm"># Interactive setup wizard</span>
-<span class="fn">npm</span> run init
+<span class="cm"># Auto-detect from env var</span>
+<span class="kw">const</span> mnemo <span class="op">=</span> <span class="kw">await</span> <span class="fn">createMnemo</span>({
+  dbPath<span class="op">:</span> <span class="str">'./memory-db'</span>
+});
 
-<span class="cm"># Or use Docker</span>
-<span class="fn">cp</span> .env.example .env  <span class="cm"># add API keys</span>
-<span class="fn">docker</span> compose up -d</code></pre>
+<span class="cm"># Or use a preset</span>
+<span class="kw">const</span> mnemo <span class="op">=</span> <span class="kw">await</span> <span class="fn">createMnemo</span>({
+  preset<span class="op">:</span> <span class="str">'openai'</span>,
+  dbPath<span class="op">:</span> <span class="str">'./memory-db'</span>
+});</code></pre>
 </div>
 </div>
 <div class="code-block reveal" style="margin-top:24px">
@@ -510,25 +516,25 @@ Run 100% locally with <a href="https://ollama.com" style="color:var(--accent)">O
 <div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div>
 <span>agent.ts</span>
 </div>
-<pre><code><span class="kw">import</span> { <span class="typ">Mnemo</span> } <span class="kw">from</span> <span class="str">'@mnemoai/core'</span>;
+<pre><code><span class="kw">import</span> { <span class="fn">createMnemo</span> } <span class="kw">from</span> <span class="str">'@mnemoai/core'</span>;
 
-<span class="cm">// Initialize with defaults</span>
-<span class="kw">const</span> mnemo <span class="op">=</span> <span class="kw">new</span> <span class="typ">Mnemo</span>({
-  agent<span class="op">:</span> <span class="str">'my-agent'</span>,
-  storage<span class="op">:</span> <span class="str">'lancedb'</span>,
+<span class="cm">// Initialize — auto-detect, preset, or full config</span>
+<span class="kw">const</span> mnemo <span class="op">=</span> <span class="kw">await</span> <span class="fn">createMnemo</span>({
+  preset<span class="op">:</span> <span class="str">'openai'</span>,  <span class="cm">// or 'ollama', 'voyage', 'jina'</span>
+  dbPath<span class="op">:</span> <span class="str">'./memory-db'</span>,
 });
 
-<span class="cm">// Store a memory (auto-classified, auto-decayed)</span>
+<span class="cm">// Store a memory</span>
 <span class="kw">await</span> mnemo.<span class="fn">store</span>({
-  content<span class="op">:</span> <span class="str">'User prefers dark mode and concise responses'</span>,
-  source<span class="op">:</span>  <span class="str">'conversation'</span>,
+  text<span class="op">:</span> <span class="str">'User prefers dark mode and concise responses'</span>,
+  category<span class="op">:</span> <span class="str">'preference'</span>,
 });
 
-<span class="cm">// Retrieve with triple-path fusion</span>
+<span class="cm">// Retrieve — decay, dedup, and ranking applied automatically</span>
 <span class="kw">const</span> memories <span class="op">=</span> <span class="kw">await</span> mnemo.<span class="fn">recall</span>(<span class="str">'user preferences'</span>);
 
 console.<span class="fn">log</span>(memories);
-<span class="cm">// [{ content: "User prefers dark mode...", score: 0.94, decay: 0.98 }]</span></code></pre>
+<span class="cm">// [{ text: "User prefers dark mode...", score: 0.94, category: "preference" }]</span></code></pre>
 </div>
 </div>
 </section>
@@ -537,20 +543,22 @@ console.<span class="fn">log</span>(memories);
 <section id="benchmarks">
 <div class="container">
 <div class="text-center reveal">
-<div class="section-label">Benchmarks</div>
-<h2 class="section-title">How Mnemo stacks up</h2>
-<p class="section-desc">Evaluated on retrieval accuracy, contradiction handling, and memory relevance over time.</p>
+<div class="section-label">Capabilities</div>
+<h2 class="section-title">Feature comparison</h2>
+<p class="section-desc">How Mnemo compares to other AI memory frameworks on architecture and features.</p>
 </div>
 <table class="bench-table reveal">
 <thead>
-<tr><th>Framework</th><th>Retrieval Accuracy</th><th>Contradiction F1</th><th>Decay Quality</th><th>Overall</th></tr>
+<tr><th>Feature</th><th>Mnemo</th><th>Mem0</th><th>Zep</th><th>Letta</th></tr>
 </thead>
 <tbody>
-<tr class="highlight"><td>Mnemo Pro</td><td>96.2%<span class="bench-bar" style="width:96px"></span></td><td>94.1%<span class="bench-bar" style="width:94px"></span></td><td>97.8%<span class="bench-bar" style="width:98px"></span></td><td>96.0</td></tr>
-<tr class="highlight"><td>Mnemo Core</td><td>93.7%<span class="bench-bar" style="width:94px"></span></td><td>91.4%<span class="bench-bar" style="width:91px"></span></td><td>97.8%<span class="bench-bar" style="width:98px"></span></td><td>94.3</td></tr>
-<tr><td>Mem0</td><td>84.5%<span class="bench-bar" style="width:85px"></span></td><td>72.3%<span class="bench-bar" style="width:72px"></span></td><td>N/A</td><td>78.4</td></tr>
-<tr><td>Zep</td><td>81.2%<span class="bench-bar" style="width:81px"></span></td><td>68.9%<span class="bench-bar" style="width:69px"></span></td><td>N/A</td><td>75.1</td></tr>
-<tr><td>Letta</td><td>79.8%<span class="bench-bar" style="width:80px"></span></td><td>65.2%<span class="bench-bar" style="width:65px"></span></td><td>N/A</td><td>72.5</td></tr>
+<tr class="highlight"><td>Weibull Decay</td><td class="highlight">Yes</td><td>No</td><td>No</td><td>No</td></tr>
+<tr class="highlight"><td>Triple-Path Retrieval</td><td class="highlight">Vec+BM25+Graph</td><td>Vector only</td><td>Vector+temporal</td><td>Vector only</td></tr>
+<tr class="highlight"><td>Contradiction Detection</td><td class="highlight">3-layer LLM</td><td>Basic</td><td>No</td><td>No</td></tr>
+<tr class="highlight"><td>Cross-encoder Rerank</td><td class="highlight">Voyage/Jina/Ollama</td><td>No</td><td>No</td><td>No</td></tr>
+<tr class="highlight"><td>100% Local ($0)</td><td class="highlight">Ollama preset</td><td>No</td><td>No</td><td>Partial</td></tr>
+<tr class="highlight"><td>Open Source</td><td class="highlight">MIT</td><td>Paid ($99+)</td><td>Paid</td><td>Freemium</td></tr>
+<tr class="highlight"><td>Preset Config (1 line)</td><td class="highlight">4 presets</td><td>No</td><td>No</td><td>No</td></tr>
 </tbody>
 </table>
 </div>
@@ -566,7 +574,7 @@ Mnemo
 </div>
 <div class="footer-links">
 <a href="https://github.com/Methux/mnemo" target="_blank">GitHub</a>
-<a href="#quickstart">Documentation</a>
+<a href="https://methux.github.io/mnemo/" target="_blank">Documentation</a>
 <a href="#pricing">Pricing</a>
 <a href="mailto:hi@m-nemo.ai">Contact</a>
 </div>
