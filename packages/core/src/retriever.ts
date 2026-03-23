@@ -1022,7 +1022,9 @@ export class MemoryRetriever {
     }
 
     // Try cross-encoder rerank via configured provider API
-    log.warn(`[rerank-debug] rerank=${this.config.rerank}, hasKey=${!!this.config.rerankApiKey}, keyPrefix=${String(this.config.rerankApiKey || '').substring(0, 8)}, provider=${this.config.rerankProvider}, model=${this.config.rerankModel}`);
+    if (process.env.MNEMO_DEBUG) {
+      log.debug(`[rerank] rerank=${this.config.rerank}, provider=${this.config.rerankProvider}, model=${this.config.rerankModel}`);
+    }
     const isLocalRerank = this.config.rerankProvider === "ollama";
     if (this.config.rerank === "cross-encoder" && (this.config.rerankApiKey || isLocalRerank)) {
       try {
