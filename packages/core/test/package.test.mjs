@@ -73,19 +73,16 @@ describe("Subpath exports", async () => {
 describe("createMnemo validation", async () => {
   const { createMnemo } = await import("../dist/index.js");
 
+  // Clear env vars that could trigger auto-detect
+  const savedKeys = {};
+  const autoDetectVars = ["OPENAI_API_KEY", "VOYAGE_API_KEY", "JINA_API_KEY", "OLLAMA_HOST", "OLLAMA_API_KEY"];
+  for (const k of autoDetectVars) {
+    savedKeys[k] = process.env[k];
+    delete process.env[k];
+  }
+
   it("throws on missing config", async () => {
     await assert.rejects(() => createMnemo(), /config is required/);
-  });
-
-  it("throws on missing embedding", async () => {
-    await assert.rejects(() => createMnemo({}), /embedding is required/);
-  });
-
-  it("throws on missing apiKey", async () => {
-    await assert.rejects(
-      () => createMnemo({ embedding: { provider: "openai-compatible" } }),
-      /apiKey is required/
-    );
   });
 
   it("throws on missing dbPath", async () => {
@@ -94,6 +91,36 @@ describe("createMnemo validation", async () => {
       /dbPath is required/
     );
   });
+
+  it("throws on no embedding provider when no env vars set", async () => {
+    await assert.rejects(
+      async () => {
+        // Ensure no auto-detect vars during this call
+        for (const k of autoDetectVars) delete process.env[k];
+        return createMnemo({ dbPath: "/tmp/test" });
+      },
+      /no embedding provider configured/
+    );
+  });
+
+  it("throws on unknown preset", async () => {
+    await assert.rejects(
+      () => createMnemo({ preset: "nonexistent", dbPath: "/tmp/test" }),
+      /unknown preset/
+    );
+  });
+
+  it("throws on missing apiKey for explicit embedding", async () => {
+    await assert.rejects(
+      () => createMnemo({ embedding: { provider: "openai-compatible" }, dbPath: "/tmp/test" }),
+      /apiKey is required/
+    );
+  });
+
+  // Restore env vars
+  for (const k of autoDetectVars) {
+    if (savedKeys[k]) process.env[k] = savedKeys[k];
+  }
 });
 
 // ============================================================================

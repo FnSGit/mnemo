@@ -3405,7 +3405,7 @@ export default memoryLanceDBProPlugin;
 // ── Public API for npm users ──
 // These are the exports that `import { createMnemo } from "@mnemoai/core"` provides
 export { createMnemo } from "./src/mnemo.js";
-export type { MnemoConfig, MnemoInstance, MemoryCategory, StorageBackend } from "./src/mnemo.js";
+export type { MnemoConfig, MnemoInstance, MemoryCategory, StorageBackend, EmbeddingPreset } from "./src/mnemo.js";
 export { MemoryStore } from "./src/store.js";
 export type { MemoryEntry, MemorySearchResult, StoreConfig } from "./src/store.js";
 export type { StorageAdapter } from "./src/storage-adapter.js";
