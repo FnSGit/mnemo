@@ -11,15 +11,12 @@ npm install @mnemoai/core
 ```typescript
 import { createMnemo } from '@mnemoai/core';
 
-const mnemo = await createMnemo({
-  embedding: {
-    provider: 'openai-compatible',
-    apiKey: process.env.OPENAI_API_KEY,
-    model: 'text-embedding-3-small',
-    dimensions: 1536,
-  },
-  dbPath: './my-memory-db',
-});
+// Auto-detect: uses OPENAI_API_KEY from env
+const mnemo = await createMnemo({ dbPath: './my-memory-db' });
+
+// Or use a preset (no config needed):
+// const mnemo = await createMnemo({ preset: 'openai', dbPath: './my-memory-db' });
+// const mnemo = await createMnemo({ preset: 'ollama', dbPath: './my-memory-db' });
 
 // Store memories
 await mnemo.store({ text: 'User prefers dark mode', category: 'preference' });
@@ -44,6 +41,12 @@ await mnemo.close();
 No API key needed — see the [Local Setup guide](/guide/ollama).
 
 ```typescript
+const mnemo = await createMnemo({ preset: 'ollama', dbPath: './my-memory-db' });
+```
+
+Or with full config:
+
+```typescript
 const mnemo = await createMnemo({
   embedding: {
     provider: 'openai-compatible',
@@ -56,11 +59,20 @@ const mnemo = await createMnemo({
 });
 ```
 
+## Available Presets
+
+| Preset | Provider | Model | Dimensions | Env Var |
+|--------|----------|-------|-----------|---------|
+| `openai` | OpenAI | text-embedding-3-small | 1536 | `OPENAI_API_KEY` |
+| `ollama` | Ollama (local) | bge-m3 | 1024 | none needed |
+| `voyage` | Voyage AI | voyage-3-large | 1024 | `VOYAGE_API_KEY` |
+| `jina` | Jina AI | jina-embeddings-v3 | 1024 | `JINA_API_KEY` |
+
 ## Using a Different Backend
 
 ```typescript
 const mnemo = await createMnemo({
-  embedding: { /* ... */ },
+  preset: 'openai',
   dbPath: './my-memory-db',
   storageBackend: 'qdrant',
   storageConfig: { url: 'http://localhost:6333' },

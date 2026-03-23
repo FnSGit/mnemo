@@ -8,11 +8,18 @@ Create a Mnemo memory instance.
 function createMnemo(config: MnemoConfig): Promise<MnemoInstance>
 ```
 
-## Example
+## Examples
 
 ```typescript
 import { createMnemo } from '@mnemoai/core';
 
+// Auto-detect (uses OPENAI_API_KEY from env)
+const mnemo = await createMnemo({ dbPath: './my-memory-db' });
+
+// Preset
+const mnemo = await createMnemo({ preset: 'ollama', dbPath: './db' });
+
+// Full config
 const mnemo = await createMnemo({
   embedding: {
     provider: 'openai-compatible',
@@ -26,7 +33,13 @@ const mnemo = await createMnemo({
 
 ## Parameters
 
-### `config.embedding` (required)
+### `config.preset` (optional)
+
+Use a preset instead of manual embedding config. Available: `"openai"`, `"ollama"`, `"voyage"`, `"jina"`.
+
+Or omit both `preset` and `embedding` for auto-detection (checks `OPENAI_API_KEY` → `VOYAGE_API_KEY` → `JINA_API_KEY` → error).
+
+### `config.embedding` (optional, overrides preset)
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|

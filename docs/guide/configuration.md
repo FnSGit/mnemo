@@ -1,10 +1,35 @@
 # Configuration
 
+## Three Ways to Configure
+
+```typescript
+// 1. Auto-detect (simplest — reads OPENAI_API_KEY from env)
+const mnemo = await createMnemo({ dbPath: './db' });
+
+// 2. Preset (one word — openai, ollama, voyage, jina)
+const mnemo = await createMnemo({ preset: 'ollama', dbPath: './db' });
+
+// 3. Full config (complete control)
+const mnemo = await createMnemo({ embedding: { ... }, dbPath: './db' });
+```
+
+## Presets
+
+| Preset | Provider | Model | Dimensions | Env Var | Cost |
+|--------|----------|-------|-----------|---------|------|
+| `openai` | OpenAI | text-embedding-3-small | 1536 | `OPENAI_API_KEY` | ~$0.02/1K |
+| `ollama` | Ollama (local) | bge-m3 | 1024 | none | $0 |
+| `voyage` | Voyage AI | voyage-3-large | 1024 | `VOYAGE_API_KEY` | ~$0.06/1K |
+| `jina` | Jina AI | jina-embeddings-v3 | 1024 | `JINA_API_KEY` | ~$0.02/1K |
+
 ## Full Config Reference
 
 ```typescript
 const mnemo = await createMnemo({
-  // Required: Embedding provider
+  // Option A: Use a preset
+  preset: 'openai',  // or 'ollama', 'voyage', 'jina'
+
+  // Option B: Manual embedding config (overrides preset)
   embedding: {
     provider: 'openai-compatible',
     apiKey: 'sk-...',                    // or 'ollama' for local

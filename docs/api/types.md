@@ -34,6 +34,14 @@ import type { StorageBackend } from '@mnemoai/core';
 type StorageBackend = "lancedb" | "qdrant" | "chroma" | "pgvector";
 ```
 
+## EmbeddingPreset
+
+```typescript
+import type { EmbeddingPreset } from '@mnemoai/core';
+
+type EmbeddingPreset = "openai" | "ollama" | "voyage" | "jina";
+```
+
 ## StorageAdapter
 
 For building custom storage backends:

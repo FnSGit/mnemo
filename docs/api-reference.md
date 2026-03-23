@@ -2,15 +2,22 @@
 
 ## createMnemo(config)
 
-Creates a Mnemo instance.
+Creates a Mnemo instance. Three ways to configure:
 
 ```typescript
 import { createMnemo } from '@mnemoai/core';
 
+// Auto-detect (uses OPENAI_API_KEY from env)
+const mnemo = await createMnemo({ dbPath: './memory-db' });
+
+// Preset (openai, ollama, voyage, jina)
+const mnemo = await createMnemo({ preset: 'ollama', dbPath: './memory-db' });
+
+// Full config
 const mnemo = await createMnemo({
   embedding: {
     provider: 'openai-compatible',
-    apiKey: process.env.OPENAI_API_KEY,  // or 'ollama' for local
+    apiKey: process.env.OPENAI_API_KEY,
     model: 'text-embedding-3-small',
     dimensions: 1536,
   },
