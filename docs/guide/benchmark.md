@@ -67,7 +67,7 @@ All frameworks tested under identical conditions using our [open-source benchmar
 |-----------|----------|---------------|--------|
 | **Mnemo Pro** | **85.2%** | — | Voyage voyage-3-large, BM25, rerank-2, pool=40 |
 | **Mnemo Core** | **46.4%** | 4.7 min | OpenAI text-embedding-3-small, vector only |
-| **Mem0** (default) | **~31.7%** | 73 min | Default config (OpenAI embedding + LLM extraction) |
+| **Mem0** (default config) | **~31.7%** | 73 min | `Memory()` default — OpenAI embedding + LLM extraction |
 | Baseline (no memory) | 0% | 0s | Control — no retrieval |
 
 **Methodology**: Same LOCOMO dataset, same GPT-4.1 judge, same scoring rubric (0-3, ≥2 = correct), same answer generation prompt. Only the memory framework's store/recall differs. Full evaluation code is open source.
@@ -80,6 +80,7 @@ All frameworks tested under identical conditions using our [open-source benchmar
 
 ## Notes
 
-- Results may vary depending on embedding model, LLM judge, and hardware
+- **Mem0 configuration**: We tested Mem0 using its default `Memory()` initialization (no custom config). Mem0's own published research reports 66.9% on LOCOMO with their optimized setup. The difference (31.7% vs 66.9%) likely reflects configuration choices — our harness tests each framework's out-of-the-box experience.
+- Results may vary depending on embedding model, LLM judge, hardware, and framework configuration
 - We encourage independent benchmarking and welcome reproducibility efforts
 - Benchmark harness and data are open source: `benchmark/run_locomo.py`
