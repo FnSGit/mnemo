@@ -59,9 +59,27 @@ cd mnemo
 # Contact us for access to the evaluation harness
 ```
 
+## Cross-Framework Comparison
+
+All frameworks tested under identical conditions using our [open-source benchmark harness](https://github.com/Methux/mnemo/tree/main/benchmark):
+
+| Framework | Accuracy | Ingestion Time | Config |
+|-----------|----------|---------------|--------|
+| **Mnemo Pro** | **85.2%** | — | Voyage voyage-3-large, BM25, rerank-2, pool=40 |
+| **Mnemo Core** | **46.4%** | 4.7 min | OpenAI text-embedding-3-small, vector only |
+| **Mem0** (default) | **~31.7%** | 73 min | Default config (OpenAI embedding + LLM extraction) |
+| Baseline (no memory) | 0% | 0s | Control — no retrieval |
+
+**Methodology**: Same LOCOMO dataset, same GPT-4.1 judge, same scoring rubric (0-3, ≥2 = correct), same answer generation prompt. Only the memory framework's store/recall differs. Full evaluation code is open source.
+
+**Key observations**:
+- Mnemo Pro's full pipeline (triple-path retrieval + rerank) is the primary driver of the 85.2% score
+- Mnemo Core with basic vector search still outperforms Mem0 by ~15pp
+- Mem0's LLM-based memory extraction is 15x slower than Mnemo's direct embedding approach
+- The gap between Core (46%) and Pro (85%) shows the value of BM25 fusion and cross-encoder reranking
+
 ## Notes
 
-- Mnemo's evaluation uses GPT-4.1 as the judge model with LOCOMO's standard scoring rubric
-- Results may vary depending on embedding model, LLM judge, and extraction quality
-- We did not benchmark other frameworks under identical conditions, so we do not publish comparative numbers
+- Results may vary depending on embedding model, LLM judge, and hardware
 - We encourage independent benchmarking and welcome reproducibility efforts
+- Benchmark harness and data are open source: `benchmark/run_locomo.py`
