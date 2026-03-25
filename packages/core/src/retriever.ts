@@ -701,7 +701,8 @@ export class MemoryRetriever {
     let rerankCount = 0;
     const tRerank0 = performance.now();
     const combined = [...lanceResults, ...uniqueGraphiti];
-    if (this.config.rerank !== "none" && this.config.rerankApiKey && combined.length > 0) {
+    const isOllamaRerank = this.config.rerankProvider === "ollama";
+    if (this.config.rerank !== "none" && (this.config.rerankApiKey || isOllamaRerank) && combined.length > 0) {
       const queryVector = await this.embedder.embedQuery(query);
       merged = await this.rerankResults(query, queryVector, combined);
       rerankCount = merged.length;

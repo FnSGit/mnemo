@@ -13,3 +13,25 @@ memory-db/
 *-private-key
 *.pem
 pro-key.json
+
+# ============================================================================
+# Claude Code / AI Assistant (Local Development Only)
+# ============================================================================
+# Serena project memory
+.serena/
+
+# Spec workflow
+.spec-workflow/
+
+# MCP server config (contains local paths)
+.mcp.json
+
+# Claude Code context files
+CLAUDE.md
+packages/*/CLAUDE.md
+services/CLAUDE.md
+docs/CLAUDE.md
+.claude/
+
+# AI assistant memory mirror
+~/.mnemo/mirror/
