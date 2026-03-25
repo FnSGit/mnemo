@@ -78,6 +78,20 @@ All frameworks tested under identical conditions using our [open-source benchmar
 - Mem0 uses LLM-based memory extraction which increases ingestion time significantly
 - The gap between Core (46%) and Pro (85%) demonstrates the value of BM25 fusion and cross-encoder reranking
 
+## LongMemEval (Zep's preferred benchmark)
+
+We also tested on [LongMemEval](https://github.com/xiaowu0162/LongMemEval), a 500-question benchmark across 6 categories.
+
+**Preliminary results** (20 questions, single-session-user category):
+
+| Framework | Accuracy | Sample |
+|-----------|----------|--------|
+| **Mnemo Core** | **90.0%** | 20 QA (single-session-user) |
+
+Zep reports "aggregate accuracy improvement of up to 18.5% over baseline" on LongMemEval but does not publish absolute accuracy numbers.
+
+Note: This is a partial result covering only one category. Full 500-question evaluation across all categories is in progress.
+
 ## Notes
 
 - **Mem0 configuration**: We tested Mem0 using its default `Memory()` initialization (no custom config). Mem0's own published research reports 66.9% on LOCOMO with their optimized setup. The difference (31.7% vs 66.9%) likely reflects configuration choices — our harness tests each framework's out-of-the-box experience.
