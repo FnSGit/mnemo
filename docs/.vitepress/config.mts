@@ -34,7 +34,6 @@ export default defineConfig({
             { text: 'Comparison', link: '/guide/comparison' },
             { text: 'LOCOMO Benchmark', link: '/guide/benchmark' },
             { text: 'Ablation Tests', link: '/guide/ablation' },
-            { text: 'MCP Server', link: '/guide/mcp' },
           ],
         },
       ],

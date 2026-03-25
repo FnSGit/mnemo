@@ -53,48 +53,18 @@ The result: your AI agent's memory stays relevant instead of drowning in noise.
 | Multi-backend (LanceDB, Qdrant, Chroma, PGVector) | ✅ | ✅ |
 | Scope isolation (multi-agent) | ✅ | ✅ |
 | $0 local deployment (Ollama) | ✅ | ✅ |
-| WAL crash recovery | — | ✅ |
-| Session reflection | — | ✅ |
-| Access reinforcement (spaced repetition) | — | ✅ |
-| Self-improvement | — | ✅ |
-| Observability & audit log | — | ✅ |
+| Pro production features | — | ✅ ([details](https://m-nemo.ai)) |
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────── Write Layer (6 channels) ───────────────┐
-│  ① Hook realtime       ④ Daily archive extractor       │
-│  ② Plugin SmartExtract ⑤ File watcher (fs.watch)       │
-│  ③ L1 Distiller (cron) ⑥ Manual memory_store           │
-└────────────────────────┬───────────────────────────────┘
-                         ▼
-              store.ts (dedup + contradiction L1)
-                    ┌────┴────┐
-                    ▼         ▼
-                LanceDB    Graphiti/Neo4j
-              (Vec + BM25)  (Knowledge Graph + WAL)
-
-┌─────────────── Retrieval Layer (10 stages) ─────────────┐
-│  S0  Preprocessing         S5  Min-score filter         │
-│  S1  Resonance gate        S6  Cross-encoder rerank     │
-│  S2  Multi-hop detection   S7  Weibull decay            │
-│  S3  Triple-path parallel  S8  Hard cutoff + normalize  │
-│      (Vector‖BM25‖Graph)   S9  MMR deduplication        │
-│  S4  RRF fusion            S10 Session dedup + inject   │
-└────────────────────────┬────────────────────────────────┘
-                         ▼
-                   Top-K → Agent Context
-
-┌─────────────── Lifecycle Layer ─────────────────────────┐
-│  Tier classification: Core (β=0.8) → Working (β=1.0)   │
-│                        → Peripheral (β=1.3)             │
-│  Weibull decay: exp(-(t/λ)^β)                          │
-│  Access reinforcement (spaced repetition)               │
-│  Emotional salience modulation (up to 1.5×)             │
-│  Session reflection + overnight consolidation           │
-└─────────────────────────────────────────────────────────┘
+  Store ──→ Embedding ──→ Vector DB (LanceDB / Qdrant / Chroma / PGVector)
+                              │
+  Recall ──→ Multi-path retrieval ──→ Rerank ──→ Decay ──→ Top-K results
+                              │
+  Lifecycle: Weibull decay + memory tiers + contradiction detection
 ```
 
 ---
@@ -174,6 +144,7 @@ docker compose up -d     # starts Neo4j + Graphiti + Dashboard
 | Package | Platform | Install |
 |:---|:---|:---|
 | [@mnemoai/core](https://www.npmjs.com/package/@mnemoai/core) | npm | `npm install @mnemoai/core` |
+| @mnemoai/pro | npm (private) | `npm install @mnemoai/pro` (requires license) |
 | [@mnemoai/server](https://www.npmjs.com/package/@mnemoai/server) | npm | `npx @mnemoai/server` |
 | [@mnemoai/vercel-ai](https://www.npmjs.com/package/@mnemoai/vercel-ai) | npm | `npm install @mnemoai/vercel-ai` |
 | [mnemo-memory](https://pypi.org/project/mnemo-memory/) | PyPI | `pip install mnemo-memory` |
@@ -201,21 +172,10 @@ The open-source foundation. Full retrieval engine, no restrictions.
 
 ### Mnemo Pro — From $69/mo
 
-Everything in Core, plus production features:
-
-| Feature | Details |
-|:---|:---|
-| WAL | Write-ahead log for crash recovery |
-| Session reflection | Deep summary at session boundaries |
-| Self-improvement | Learning from interaction patterns |
-| Memory tools | memory_store / search / delete for agents |
-| MCP Server | Model Context Protocol integration |
-| Observability | Query tracking, latency monitoring, health checks |
-| Access tracking | Spaced repetition with reinforcement |
-| Audit log | GDPR-compliant append-only JSONL |
+Everything in Core, plus production features. [Learn more →](https://m-nemo.ai)
 
 ```bash
-# Activate Pro
+npm install @mnemoai/pro
 export MNEMO_PRO_KEY="your_license_key"
 ```
 
@@ -248,16 +208,11 @@ Mnemo is a framework — **you bring your own models**. Choose a setup that fits
 
 Mnemo's design maps directly to established memory research:
 
-| Human Memory | Mnemo Implementation |
+| Human Memory | Mnemo |
 |:---|:---|
-| Ebbinghaus forgetting curve | Weibull decay: `exp(-(t/λ)^β)` |
-| Spaced repetition effect | Access reinforcement extends half-life |
-| Memory consolidation (sleep) | Session reflection + overnight cron |
-| Core vs peripheral memory | Tier system with differential β |
-| Spreading activation | Graphiti 1-hop neighborhood traversal |
-| Amygdala emotional tagging | emotionalSalience modulates half-life (up to 1.5×) |
-| Interference / false memories | MMR deduplication + noise bank |
-| Selective attention | Resonance gating (adaptive threshold) |
+| Ebbinghaus forgetting curve | Weibull decay model |
+| Core vs peripheral memory | Tier system with differential decay rates |
+| Interference / false memories | Deduplication + noise filtering |
 | Metamemory | mnemo-doctor + Web Dashboard |
 
 ---
