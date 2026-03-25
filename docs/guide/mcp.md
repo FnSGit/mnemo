@@ -1,6 +1,8 @@
 # MCP Server Integration
 
-Mnemo includes a built-in [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that exposes memory tools over stdio JSON-RPC. This lets Claude Code, Claude Desktop, and any MCP-compatible client use Mnemo's memory directly.
+> **Pro Feature** — Requires `@mnemoai/pro` package and a valid license key.
+
+Mnemo Pro includes a built-in [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that exposes memory tools over stdio JSON-RPC. This lets Claude Code, Claude Desktop, and any MCP-compatible client use Mnemo's memory directly.
 
 ## Available Tools
 
@@ -13,13 +15,18 @@ Mnemo includes a built-in [MCP (Model Context Protocol)](https://modelcontextpro
 | `memory_list` | List recent memories with scope/category filtering and pagination. |
 | `memory_stats` | Get statistics: total count, scope breakdown, category distribution. |
 
+## Prerequisites
+
+```bash
+npm install @mnemoai/core @mnemoai/pro
+export MNEMO_PRO_KEY="your-license-key"
+```
+
 ## Setup with Claude Code
 
 ```bash
-# Register Mnemo as an MCP server
 claude mcp add mnemo-memory -s user -- \
-  node --import jiti/register \
-  /path/to/mnemo/packages/core/src/mcp-server.ts
+  npx @mnemoai/pro/mcp-server
 ```
 
 Or in your Claude Code MCP config (`~/.claude/settings.json`):
@@ -28,11 +35,8 @@ Or in your Claude Code MCP config (`~/.claude/settings.json`):
 {
   "mcpServers": {
     "mnemo-memory": {
-      "command": "node",
-      "args": [
-        "--import", "jiti/register",
-        "/path/to/mnemo/packages/core/src/mcp-server.ts"
-      ]
+      "command": "npx",
+      "args": ["@mnemoai/pro/mcp-server"]
     }
   }
 }
@@ -46,11 +50,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 {
   "mcpServers": {
     "mnemo-memory": {
-      "command": "node",
-      "args": [
-        "--import", "jiti/register",
-        "/path/to/mnemo/packages/core/src/mcp-server.ts"
-      ]
+      "command": "npx",
+      "args": ["@mnemoai/pro/mcp-server"]
     }
   }
 }
@@ -58,24 +59,20 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Configuration
 
-The MCP server reads configuration from your Mnemo config file. Key settings:
+The MCP server reads configuration from your environment or Mnemo config. Key settings:
 
-```json
-{
-  "embedding": {
-    "provider": "openai-compatible",
-    "apiKey": "your-key",
-    "model": "voyage-3-large",
-    "dimensions": 1024
-  },
-  "dbPath": "~/.mnemo/memory-db",
-  "retrieval": {
-    "candidatePoolSize": 40,
-    "rerank": "cross-encoder",
-    "rerankProvider": "voyage",
-    "rerankModel": "rerank-2"
-  }
-}
+```bash
+# Embedding provider
+export MNEMO_PRESET=voyage          # or openai, ollama, jina
+export VOYAGE_API_KEY=pa-...
+
+# Database
+export MNEMO_DB_PATH=~/.mnemo/memory-db
+
+# Retrieval (optional)
+export MNEMO_RERANK=cross-encoder
+export MNEMO_RERANK_PROVIDER=voyage
+export MNEMO_RERANK_API_KEY=pa-...
 ```
 
 ## Tool Details
@@ -127,12 +124,3 @@ category?: string — Filter by category
 - **Dedup on write**: Near-identical memories (cosine > 0.98) are detected and skipped
 - **WAL protection**: Write-ahead log ensures no memory loss on crash
 - **Markdown mirror**: Optionally writes a human-readable log of all stored memories
-
-## Pro Features
-
-With Mnemo Pro, the MCP server additionally supports:
-
-- Access tracking and analytics
-- Audit logging for all operations
-- WAL crash recovery
-- Session reflection integration
