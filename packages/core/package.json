@@ -13,6 +13,10 @@
     "./storage-adapter": {
       "import": "./dist/src/storage-adapter.js",
       "types": "./dist/src/storage-adapter.d.ts"
+    },
+    "./internals/*": {
+      "import": "./dist/src/*.js",
+      "types": "./dist/src/*.d.ts"
     }
   },
   "files": [
