@@ -16,11 +16,11 @@ import {
   buildDedupPrompt,
   buildMergePrompt,
 } from "./extraction-prompts.js";
-// Pro feature: self-improvement feedback loop (loaded dynamically if available)
+// Pro feature: self-improvement feedback loop (loaded from @mnemoai/pro if available)
 let buildLearningsContext: ((baseDir: string, maxEntries?: number) => Promise<string>) | null = null;
-import("./self-improvement-" + "files.js").then(mod => {
+import("@mnemoai/" + "pro").then(mod => {
   buildLearningsContext = mod.buildLearningsContext;
-}).catch(() => { /* Pro module not available */ });
+}).catch(() => { /* @mnemoai/pro not installed — feedback loop disabled */ });
 import {
   type CandidateMemory,
   type DedupDecision,
