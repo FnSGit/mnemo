@@ -19,6 +19,11 @@ export interface ScopeConfig {
   default: string;
   definitions: Record<string, ScopeDefinition>;
   agentAccess: Record<string, string[]>;
+  /**
+   * Explicit list of accessible scopes (parsed from MNEMO_SCOPE env).
+   * When set, getAccessibleScopes() returns this list instead of all definitions.
+   */
+  accessibleScopes?: string[];
 }
 
 export interface ScopeManager {
@@ -28,6 +33,12 @@ export interface ScopeManager {
   validateScope(scope: string): boolean;
   getAllScopes(): string[];
   getScopeDefinition(scope: string): ScopeDefinition | undefined;
+  getStats(): {
+    totalScopes: number;
+    agentsWithCustomAccess: number;
+    scopesByType: Record<string, number>;
+    accessibleScopes?: string[];
+  };
 }
 
 // ============================================================================
@@ -74,6 +85,7 @@ export class MemoryScopeManager implements ScopeManager {
         ...DEFAULT_SCOPE_CONFIG.agentAccess,
         ...config.agentAccess,
       },
+      accessibleScopes: config.accessibleScopes,
     };
 
     // Ensure global scope always exists
@@ -87,8 +99,17 @@ export class MemoryScopeManager implements ScopeManager {
   }
 
   private validateConfiguration(): void {
-    // Validate default scope exists in definitions
-    if (!this.config.definitions[this.config.default]) {
+    // When accessibleScopes is set, we allow scopes that may not be in definitions
+    // This enables MNEMO_SCOPE="scope1|scope2" to work without explicit definitions
+    const allowUndefinedScopes = this.config.accessibleScopes !== undefined;
+
+    // Validate default scope exists in definitions or is in accessibleScopes
+    const defaultValid =
+      this.config.definitions[this.config.default] !== undefined ||
+      (allowUndefinedScopes && this.config.accessibleScopes?.includes(this.config.default)) ||
+      this.isBuiltInScope(this.config.default);
+
+    if (!defaultValid) {
       throw new Error(`Default scope '${this.config.default}' not found in definitions`);
     }
 
@@ -113,6 +134,11 @@ export class MemoryScopeManager implements ScopeManager {
   }
 
   getAccessibleScopes(agentId?: string): string[] {
+    // If accessibleScopes is explicitly set (from MNEMO_SCOPE), use it
+    if (this.config.accessibleScopes && this.config.accessibleScopes.length > 0) {
+      return this.config.accessibleScopes;
+    }
+
     if (!agentId) {
       // No agent specified, return all scopes
       return this.getAllScopes();
@@ -153,6 +179,11 @@ export class MemoryScopeManager implements ScopeManager {
   }
 
   isAccessible(scope: string, agentId?: string): boolean {
+    // If accessibleScopes is set, check against it directly
+    if (this.config.accessibleScopes && this.config.accessibleScopes.length > 0) {
+      return this.config.accessibleScopes.includes(scope);
+    }
+
     if (!agentId) {
       // No agent specified, allow access to all valid scopes
       return this.validateScope(scope);
@@ -168,6 +199,11 @@ export class MemoryScopeManager implements ScopeManager {
     }
 
     const trimmedScope = scope.trim();
+
+    // If accessibleScopes is set, check against it
+    if (this.config.accessibleScopes && this.config.accessibleScopes.length > 0) {
+      return this.config.accessibleScopes.includes(trimmedScope);
+    }
 
     // Check if scope is defined or is a built-in pattern
     return (
@@ -274,6 +310,7 @@ export class MemoryScopeManager implements ScopeManager {
         ...this.config.agentAccess,
         ...config.agentAccess,
       },
+      accessibleScopes: config.accessibleScopes ?? this.config.accessibleScopes,
     };
 
     this.validateConfiguration();
@@ -285,7 +322,44 @@ export class MemoryScopeManager implements ScopeManager {
     totalScopes: number;
     agentsWithCustomAccess: number;
     scopesByType: Record<string, number>;
+    accessibleScopes?: string[];
   } {
+    // If accessibleScopes is set, report based on it
+    if (this.config.accessibleScopes && this.config.accessibleScopes.length > 0) {
+      const scopesByType: Record<string, number> = {
+        global: 0,
+        agent: 0,
+        custom: 0,
+        project: 0,
+        user: 0,
+        other: 0,
+      };
+
+      for (const scope of this.config.accessibleScopes) {
+        if (scope === "global") {
+          scopesByType.global++;
+        } else if (scope.startsWith("agent:")) {
+          scopesByType.agent++;
+        } else if (scope.startsWith("custom:")) {
+          scopesByType.custom++;
+        } else if (scope.startsWith("project:")) {
+          scopesByType.project++;
+        } else if (scope.startsWith("user:")) {
+          scopesByType.user++;
+        } else {
+          scopesByType.other++;
+        }
+      }
+
+      return {
+        totalScopes: this.config.accessibleScopes.length,
+        agentsWithCustomAccess: Object.keys(this.config.agentAccess).length,
+        scopesByType,
+        accessibleScopes: this.config.accessibleScopes,
+      };
+    }
+
+    // Fall back to definitions-based stats
     const scopes = this.getAllScopes();
     const scopesByType: Record<string, number> = {
       global: 0,

@@ -1618,8 +1618,8 @@ const pluginVersion = getPluginVersion();
 // Plugin Definition
 // ============================================================================
 
-const memoryLanceDBProPlugin = {
-  id: "memory-lancedb-pro",
+const mnemoMemoryPlugin = {
+  id: "mnemo-memory",
   name: "Mnemo Memory",
   description:
     "Cognitive memory framework with hybrid retrieval, multi-scope isolation, and management CLI",
@@ -3118,7 +3118,7 @@ const memoryLanceDBProPlugin = {
     // ========================================================================
 
     api.registerService({
-      id: "memory-lancedb-pro",
+      id: "mnemo-memory",
       start: async () => {
         // IMPORTANT: Do not block gateway startup on external network calls.
         // If embedding/retrieval tests hang (bad network / slow provider), the gateway
@@ -3400,7 +3400,7 @@ function parsePluginConfig(value: unknown): PluginConfig {
   };
 }
 
-export default memoryLanceDBProPlugin;
+export default mnemoMemoryPlugin;
 
 // ── Public API for npm users ──
 // These are the exports that `import { createMnemo } from "@mnemoai/core"` provides
@@ -3412,3 +3412,4 @@ export type { StorageAdapter } from "./src/storage-adapter.js";
 export { registerAdapter, createAdapter, listAdapters } from "./src/storage-adapter.js";
 export { log, setLogger } from "./src/logger.js";
 export type { Logger } from "./src/logger.js";
+export { parseMNEMO_SCOPE } from "./src/config.js";

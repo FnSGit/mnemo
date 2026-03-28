@@ -13,6 +13,10 @@
     "./storage-adapter": {
       "import": "./dist/src/storage-adapter.js",
       "types": "./dist/src/storage-adapter.d.ts"
+    },
+    "./mcp-server": {
+      "import": "./dist/src/mcp-server.js",
+      "types": "./dist/src/mcp-server.d.ts"
     }
   },
   "files": [

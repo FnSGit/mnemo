@@ -378,7 +378,7 @@ server.tool(
       const text = [
         `Memory Statistics:`,
         `  Total memories: ${stats.totalCount}`,
-        `  Available scopes: ${scopeManagerStats.totalScopes}`,
+        `  Available scopes: ${scopeManagerStats.totalScopes}${scopeManagerStats.accessibleScopes ? ` (${scopeManagerStats.accessibleScopes.join(", ")})` : ""}`,
         `  Retrieval mode: ${retrievalConfig.mode}`,
         `  FTS support: ${store.hasFtsSupport ? "Yes" : "No"}`,
         ``,

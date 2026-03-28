@@ -6,7 +6,7 @@
 
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 
 // ============================================================================
 // Configuration Types
@@ -49,10 +49,17 @@ export interface PluginConfig {
     reinforcementFactor?: number;
     maxHalfLifeMultiplier?: number;
   };
+  localReranker?: {
+    enabled?: boolean;
+    path?: string;
+    port?: number;
+  };
   scopes?: {
     default?: string;
     definitions?: Record<string, { description: string }>;
     agentAccess?: Record<string, string[]>;
+    /** Parsed from MNEMO_SCOPE env: "scope1|scope2" format */
+    accessibleScopes?: string[];
   };
   enableManagementTools?: boolean;
   sessionMemory?: { enabled?: boolean; messageCount?: number };
@@ -69,16 +76,50 @@ export interface PluginConfig {
 // Helpers
 // ============================================================================
 
+/**
+ * Parse MNEMO_SCOPE environment variable.
+ * Format: "scope1|scope2|scope3" (pipe-separated)
+ * - First scope is used as default for storage
+ * - All scopes are accessible for retrieval
+ * - "global" is always included for retrieval (no need to specify)
+ *
+ * Examples:
+ * - "mnemoai" → default: "mnemoai", accessible: ["mnemoai", "global"]
+ * - "claude|memory" → default: "claude", accessible: ["claude", "memory", "global"]
+ */
+export function parseMNEMO_SCOPE(envValue: string | undefined): {
+  defaultScope: string;
+  accessibleScopes: string[];
+} | null {
+  if (!envValue || envValue.trim() === "") {
+    return null;
+  }
+
+  const scopes = envValue
+    .split("|")
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+
+  if (scopes.length === 0) {
+    return null;
+  }
+
+  // Always include "global" in accessible scopes (no need to specify explicitly)
+  const accessibleScopes = [...new Set([...scopes, "global"])];
+
+  return {
+    defaultScope: scopes[0],
+    accessibleScopes,
+  };
+}
+
 export function getDefaultDbPath(): string {
   // Prefer MNEMO_DB_PATH env, then ~/.mnemo/memory-db (open source default),
   // then ~/.openclaw/memory/lancedb-pro (OpenClaw integration fallback)
   if (process.env.MNEMO_DB_PATH) return process.env.MNEMO_DB_PATH;
   const mnemoPath = join(homedir(), ".mnemo", "memory-db");
   const openclawPath = join(homedir(), ".openclaw", "memory", "lancedb-pro");
-  try {
-    const { existsSync } = require("fs");
-    if (existsSync(openclawPath)) return openclawPath;
-  } catch {}
+  if (existsSync(openclawPath)) return openclawPath;
   return mnemoPath;
 }
 
@@ -104,6 +145,46 @@ export function parsePositiveInt(value: unknown): number | undefined {
     if (Number.isFinite(n) && n > 0) return Math.floor(n);
   }
   return undefined;
+}
+
+/**
+ * Parse scopes configuration with MNEMO_SCOPE environment variable support.
+ * MNEMO_SCOPE format: "scope1|scope2|scope3"
+ * - First scope becomes default for storage
+ * - All scopes are accessible for retrieval
+ * - "global" is always included automatically
+ */
+function parseScopesConfig(cfgScopes: unknown): PluginConfig["scopes"] {
+  // Check MNEMO_SCOPE environment variable first
+  const envScopes = parseMNEMO_SCOPE(process.env.MNEMO_SCOPE);
+
+  // Base scopes from config file
+  const baseScopes =
+    typeof cfgScopes === "object" && cfgScopes !== null
+      ? (cfgScopes as PluginConfig["scopes"])
+      : undefined;
+
+  // If MNEMO_SCOPE is set, it takes priority
+  if (envScopes) {
+    return {
+      default: envScopes.defaultScope,
+      accessibleScopes: envScopes.accessibleScopes,
+      definitions: baseScopes?.definitions,
+      agentAccess: baseScopes?.agentAccess,
+    };
+  }
+
+  // If only default is set in config, auto-include global in accessibleScopes
+  if (baseScopes?.default && !baseScopes.accessibleScopes) {
+    return {
+      default: baseScopes.default,
+      accessibleScopes: [...new Set([baseScopes.default, "global"])],
+      definitions: baseScopes.definitions,
+      agentAccess: baseScopes.agentAccess,
+    };
+  }
+
+  return baseScopes;
 }
 
 // ============================================================================
@@ -181,10 +262,19 @@ export function parsePluginConfig(value: unknown): PluginConfig {
       typeof cfg.retrieval === "object" && cfg.retrieval !== null
         ? (cfg.retrieval as any)
         : undefined,
-    scopes:
-      typeof cfg.scopes === "object" && cfg.scopes !== null
-        ? (cfg.scopes as any)
+    localReranker:
+      typeof cfg.localReranker === "object" && cfg.localReranker !== null
+        ? {
+            enabled:
+              (cfg.localReranker as Record<string, unknown>).enabled === true,
+            path:
+              typeof (cfg.localReranker as Record<string, unknown>).path === "string"
+                ? ((cfg.localReranker as Record<string, unknown>).path as string)
+                : undefined,
+            port: parsePositiveInt((cfg.localReranker as Record<string, unknown>).port),
+          }
         : undefined,
+    scopes: parseScopesConfig(cfg.scopes),
     enableManagementTools: cfg.enableManagementTools === true,
     sessionMemory:
       typeof cfg.sessionMemory === "object" && cfg.sessionMemory !== null
@@ -237,7 +327,6 @@ export function parsePluginConfig(value: unknown): PluginConfig {
 // ============================================================================
 
 export function loadConfigFromOpenClaw(): PluginConfig {
-  const { existsSync } = require("fs");
   const envPath = process.env.MNEMO_CONFIG;
   const mnemoPath = join(homedir(), ".mnemo", "mnemo.json");
   const openclawPath = join(homedir(), ".openclaw", "openclaw.json");
@@ -260,10 +349,10 @@ export function loadConfigFromOpenClaw(): PluginConfig {
     );
   }
 
-  const pluginConfig = json?.plugins?.entries?.["memory-lancedb-pro"]?.config;
+  const pluginConfig = json?.plugins?.entries?.["mnemo-memory"]?.config;
   if (!pluginConfig) {
     throw new Error(
-      `No config found at plugins.entries["memory-lancedb-pro"].config in ${configPath}`,
+      `No config found at plugins.entries["mnemo-memory"].config in ${configPath}`,
     );
   }
 
