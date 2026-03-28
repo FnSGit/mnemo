@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/auto-capture.js\"",
+            "async": true,
+            "timeout": 30
+          }
+        ],
+        "description": "Auto-capture memorable information from conversation (Mnemo)"
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/auto-recall.js\""
+          }
+        ],
+        "description": "Inject relevant memories at session start (Mnemo)"
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/compact-capture.js\"",
+            "async": true,
+            "timeout": 60
+          }
+        ],
+        "description": "Deep memory extraction before compaction (Mnemo)"
+      }
+    ]
+  }
+}

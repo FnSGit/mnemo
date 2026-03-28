@@ -1,0 +1,59 @@
+{
+  "name": "@mnemoai/claude-plugin",
+  "version": "0.3.0",
+  "description": "AI Memory plugin for Claude Code - Auto-capture and recall capabilities with bundled components",
+  "type": "module",
+  "bin": {
+    "mnemo-mcp": "./bin/mnemo-mcp.js"
+  },
+  "main": "./bin/mnemo-mcp.js",
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "memory",
+    "ai",
+    "ollama",
+    "mcp",
+    "rag"
+  ],
+  "author": "Mnemo Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Methux/mnemo.git",
+    "directory": "packages/plugins/mnemo-plugin"
+  },
+  "bugs": {
+    "url": "https://github.com/Methux/mnemo/issues"
+  },
+  "homepage": "https://docs.m-nemo.ai",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "bin/",
+    ".claude-plugin/",
+    "hooks/",
+    "skills/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build-bundle.mjs",
+    "prepack": "node scripts/build-bundle.mjs",
+    "start": "node bin/mnemo-mcp.js",
+    "test": "node bin/mnemo-mcp.js --version"
+  },
+  "dependencies": {
+    "@lancedb/lancedb": "^0.26.2",
+    "apache-arrow": "^18.0.0",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.0",
+    "typescript": "^5.9.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

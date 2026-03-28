@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "mnemo-plugin",
+  "version": "0.3.0",
+  "description": "AI Memory plugin for Claude Code - Auto-capture and recall capabilities",
+  "author": {
+    "name": "Mnemo Team",
+    "url": "https://m-nemo.ai"
+  },
+  "homepage": "https://docs.m-nemo.ai",
+  "repository": "https://github.com/Methux/mnemo",
+  "license": "MIT",
+  "keywords": [
+    "memory",
+    "ai",
+    "persistence",
+    "rag",
+    "knowledge-graph",
+    "ollama"
+  ],
+  "env": {
+    "MNEMO_AUTO_CAPTURE": {
+      "description": "Enable auto-capture on Stop event",
+      "default": "true"
+    },
+    "MNEMO_AUTO_RECALL": {
+      "description": "Enable auto-recall on SessionStart",
+      "default": "true"
+    },
+    "MNEMO_MIN_IMPORTANCE": {
+      "description": "Minimum importance threshold for storing memories",
+      "default": "0.55"
+    },
+    "MNEMO_RECALL_LIMIT": {
+      "description": "Maximum number of memories to inject at session start",
+      "default": "5"
+    },
+    "OLLAMA_BASE_URL": {
+      "description": "Ollama API endpoint",
+      "default": "http://localhost:11434"
+    },
+    "OLLAMA_MODEL": {
+      "description": "Ollama model for LLM extraction",
+      "default": "qwen3.5:9b"
+    }
+  }
+}
