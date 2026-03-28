@@ -6,7 +6,8 @@
   "workspaces": [
     "packages/core",
     "packages/pro",
-    "packages/vercel-ai"
+    "packages/vercel-ai",
+    "packages/plugins/*"
   ],
   "scripts": {
     "init": "node packages/tools/mnemo-init.js",
