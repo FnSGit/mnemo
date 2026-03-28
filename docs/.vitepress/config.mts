@@ -31,10 +31,18 @@ export default defineConfig({
             { text: 'Storage Backends', link: '/guide/backends' },
             { text: 'Retrieval Pipeline', link: '/guide/retrieval' },
             { text: 'Weibull Decay', link: '/guide/decay' },
+            { text: 'Scope Isolation', link: '/guide/mnemo-scope-isolation' },
             { text: 'Comparison', link: '/guide/comparison' },
             { text: 'LOCOMO Benchmark', link: '/guide/benchmark' },
             { text: 'Ablation Tests', link: '/guide/ablation' },
             { text: 'MCP Server', link: '/guide/mcp' },
+          ],
+        },
+        {
+          text: 'Development',
+          items: [
+            { text: 'Claude Code Plugin Dev', link: '/guide/claude-code-plugin-dev' },
+            { text: 'Local Reranker', link: '/guide/local-reranker-deployment' },
           ],
         },
       ],
