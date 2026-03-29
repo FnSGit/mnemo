@@ -52,35 +52,26 @@ let createMemoryUpgrader: any = () => null;
 type MdMirrorWriter = any;
 
 if (isProLicensed()) {
-  // Load all Pro modules — these are available but license-gated
-  Promise.all([
-    import("./src/tools.js"),
-    import("./src/self-improvement-files.js"),
-    import("./src/reflection-retry.js"),
-    import("./src/session-recovery.js"),
-    import("./src/reflection-store.js"),
-    import("./src/reflection-slices.js"),
-    import("./src/reflection-event-store.js"),
-    import("./src/reflection-mapped-metadata.js"),
-    import("./src/wal-recovery.js"),
-    import("./src/memory-upgrader.js"),
-  ]).then(([tools, selfImprove, reflRetry, sessRecov, reflStore, reflSlices, reflEvent, reflMapped, wal, upgrader]) => {
-    registerAllMemoryTools = tools.registerAllMemoryTools;
-    appendSelfImprovementEntry = selfImprove.appendSelfImprovementEntry;
-    ensureSelfImprovementLearningFiles = selfImprove.ensureSelfImprovementLearningFiles;
-    runWithReflectionTransientRetryOnce = reflRetry.runWithReflectionTransientRetryOnce;
-    resolveReflectionSessionSearchDirs = sessRecov.resolveReflectionSessionSearchDirs;
-    stripResetSuffix = sessRecov.stripResetSuffix;
-    storeReflectionToLanceDB = reflStore.storeReflectionToLanceDB;
-    loadAgentReflectionSlicesFromEntries = reflStore.loadAgentReflectionSlicesFromEntries;
-    DEFAULT_REFLECTION_DERIVED_MAX_AGE_MS = reflStore.DEFAULT_REFLECTION_DERIVED_MAX_AGE_MS;
-    extractReflectionLearningGovernanceCandidates = reflSlices.extractReflectionLearningGovernanceCandidates;
-    extractReflectionMappedMemoryItems = reflSlices.extractReflectionMappedMemoryItems;
-    createReflectionEventId = reflEvent.createReflectionEventId;
-    buildReflectionMappedMetadata = reflMapped.buildReflectionMappedMetadata;
-    recoverPendingWrites = wal.recoverPendingWrites;
-    createMemoryUpgrader = upgrader.createMemoryUpgrader;
-  }).catch(() => {});
+  // Load Pro modules from @mnemoai/pro (installed separately by Pro customers)
+  import("@mnemoai/" + "pro").then((pro) => {
+    registerAllMemoryTools = pro.registerAllMemoryTools;
+    appendSelfImprovementEntry = pro.appendSelfImprovementEntry;
+    ensureSelfImprovementLearningFiles = pro.ensureSelfImprovementLearningFiles;
+    runWithReflectionTransientRetryOnce = pro.runWithReflectionTransientRetryOnce;
+    resolveReflectionSessionSearchDirs = pro.resolveReflectionSessionSearchDirs;
+    stripResetSuffix = pro.stripResetSuffix;
+    storeReflectionToLanceDB = pro.storeReflectionToLanceDB;
+    loadAgentReflectionSlicesFromEntries = pro.loadAgentReflectionSlicesFromEntries;
+    DEFAULT_REFLECTION_DERIVED_MAX_AGE_MS = pro.DEFAULT_REFLECTION_DERIVED_MAX_AGE_MS;
+    extractReflectionLearningGovernanceCandidates = pro.extractReflectionLearningGovernanceCandidates;
+    extractReflectionMappedMemoryItems = pro.extractReflectionMappedMemoryItems;
+    createReflectionEventId = pro.createReflectionEventId;
+    buildReflectionMappedMetadata = pro.buildReflectionMappedMetadata;
+    recoverPendingWrites = pro.recoverPendingWrites;
+    createMemoryUpgrader = pro.createMemoryUpgrader;
+  }).catch(() => {
+    // @mnemoai/pro not installed — Pro features disabled, Core works normally
+  });
 }
 
 // Import smart extraction & lifecycle components

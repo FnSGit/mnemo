@@ -17,6 +17,10 @@
     "./mcp-server": {
       "import": "./dist/src/mcp-server.js",
       "types": "./dist/src/mcp-server.d.ts"
+    },
+    "./internals/*": {
+      "import": "./dist/src/*.js",
+      "types": "./dist/src/*.d.ts"
     }
   },
   "files": [

@@ -26,7 +26,7 @@ Mnemo: Graphiti `/spread` traverses 1-hop neighborhood from matched entities.
 
 ### Spaced Repetition → Access Reinforcement
 Ebbinghaus (1885): spaced review strengthens memory traces.
-Mnemo: each recall increments `access_count`, extending effective half-life.
+Mnemo Pro: frequently recalled memories are reinforced, extending their effective lifetime.
 
 ### Amygdala Emotional Tagging → emotionalSalience
 Emotionally charged memories are more durable (McGaugh, 2004).

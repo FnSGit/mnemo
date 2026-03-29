@@ -1,43 +1,40 @@
 # Mnemo Pro
 
-Everything in Core, plus enterprise features.
+Everything in Core, plus production features.
 
-## Pro Features
+## Features
 
-| Feature | Description |
+| Feature | What It Does |
 |---------|-------------|
-| **WAL** | Write-ahead log for crash recovery |
-| **Session Reflection** | Deep summary at session boundaries |
-| **Self-Improvement** | Learning from interaction patterns |
-| **Memory Tools** | memory_store / search / delete for agents |
-| **MCP Server** | Model Context Protocol integration |
-| **Observability** | Query tracking, latency monitoring |
-| **Access Tracking** | Spaced repetition with reinforcement |
-| **Audit Log** | GDPR-compliant append-only JSONL |
+| **WAL** | Crash recovery for all write operations |
+| **Session Reflection** | Automatic summaries at session boundaries |
+| **Self-Improvement** | Extraction quality improves over time |
+| **Memory Tools** | Full CRUD tools for agent memory management |
+| **MCP Server** | Model Context Protocol integration for Claude Code / Desktop |
+| **Access Tracking** | Memory reinforcement through usage patterns |
+| **Observability** | Query tracking, latency monitoring, health checks |
+| **Audit Log** | Compliance-ready append-only logging |
+| **Memory Upgrader** | Auto-migration between schema versions |
+
+## Installation
+
+```bash
+npm install @mnemoai/core @mnemoai/pro
+export MNEMO_PRO_KEY="your-license-key"
+# Pro features activate automatically — no code changes needed.
+```
 
 ## Pricing
 
-| Plan | Price | Machines | Best For |
-|------|-------|----------|----------|
-| **Core** | Free | Unlimited | Individual developers, evaluation |
-| **Indie** | $69/mo | 1 | Solo developers in production |
-| **Team** | $199/mo | 5 | Small teams |
-| **Enterprise** | Custom | Unlimited | Large organizations |
+| Plan | Price | Machines |
+|------|-------|----------|
+| **Core** | Free forever | Unlimited |
+| **Indie** | $69/mo | 1 |
+| **Team** | $199/mo | 5 |
+| **Enterprise** | Custom | Unlimited |
 
-## Getting Started
+Annual billing saves 2 months.
 
-1. Purchase a license at [m-nemo.ai](https://m-nemo.ai)
-2. Set your license key:
+## Get a License
 
-```bash
-export MNEMO_PRO_KEY="your-license-key"
-```
-
-3. Pro features activate automatically — no code changes needed.
-
-## Core vs Pro
-
-Mnemo Core is a fully functional memory framework with no restrictions. Pro adds operational features for production deployments:
-
-- Core: retrieval, storage, decay, dedup, contradiction detection, multi-backend
-- Pro: + WAL, reflection, self-improvement, tools, MCP, observability, audit log
+Visit [m-nemo.ai](https://m-nemo.ai) to purchase.
